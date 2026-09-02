@@ -1,0 +1,1781 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R 5 0 R 7 0 R 9 0 R] /Count 4 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Contents 4 0 R /Resources << /Font << /Helvetica 11 0 R /Helvetica-Bold 12 0 R /Courier 13 0 R >> >> >>
+endobj
+4 0 obj
+<< /Length 6877 >>
+stream
+q
+0.059 0.090 0.165 rg
+44.00 691.89 507.28 100.00 re
+f
+Q
+q
+0.020 0.588 0.412 rg
+44.00 691.89 6.00 100.00 re
+f
+Q
+BT
+0.020 0.588 0.412 rg
+/Helvetica-Bold 8.50 Tf
+62.00 765.89 Td
+(FRIEDEN TECHNOLOGY - PRODUCT ARCHITECTURE DESIGN SPECIFICATION) Tj
+ET
+BT
+1.000 1.000 1.000 rg
+/Helvetica-Bold 17.00 Tf
+62.00 739.89 Td
+(CMR Specialist Automation Agent) Tj
+ET
+BT
+0.750 0.820 0.920 rg
+/Helvetica 8.00 Tf
+62.00 711.89 Td
+(STATUS: Master Execution Plan) Tj
+ET
+BT
+0.750 0.820 0.920 rg
+/Helvetica 8.00 Tf
+193.36 711.89 Td
+(VERSION: 1.0) Tj
+ET
+BT
+0.750 0.820 0.920 rg
+/Helvetica 8.00 Tf
+259.44 711.89 Td
+(TARGET DATE: 31 August 2026) Tj
+ET
+BT
+0.750 0.820 0.920 rg
+/Helvetica 8.00 Tf
+383.12 711.89 Td
+(REGION: Africa/Lagos) Tj
+ET
+q
+0.941 0.988 0.965 rg
+0.886 0.910 0.941 RG
+0.75 w
+44.00 607.46 507.28 68.43 re
+B
+Q
+q
+0.020 0.588 0.412 rg
+44.00 607.46 4.00 68.43 re
+f
+Q
+BT
+0.020 0.588 0.412 rg
+/Helvetica-Bold 8.50 Tf
+58.00 659.89 Td
+(FOUNDATIONAL ARCHITECTURAL LAW) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.50 Tf
+58.00 647.89 Td
+(The AI is replaceable. The case record, knowledge history and audit trail are the product memory. A conversation is) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.50 Tf
+58.00 636.41 Td
+(temporary. A case is durable. An answer is useful only when its source and effect can be traced. AI reasons; software) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.50 Tf
+58.00 624.94 Td
+(decides.) Tj
+ET
+q
+0.118 0.251 0.686 rg
+44.00 586.46 4.00 16.00 re
+f
+Q
+BT
+0.059 0.090 0.165 rg
+/Helvetica-Bold 13.50 Tf
+54.00 589.46 Td
+(1. Architectural Principles & Boundaries) Tj
+ET
+q
+0.886 0.910 0.941 RG
+0.75 w
+54.00 581.46 m 551.28 581.46 l S
+Q
+q
+0.020 0.588 0.412 rg
+48.00 571.92 3.00 3.00 re
+f
+Q
+BT
+0.059 0.090 0.165 rg
+/Helvetica-Bold 8.20 Tf
+58.00 569.46 Td
+(1. Case Record First:) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.20 Tf
+150.54 569.46 Td
+(Each individual can own multiple cases. Status belongs strictly to a case, never to the person. Every) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.20 Tf
+58.00 558.39 Td
+(transition is an immutable event.) Tj
+ET
+q
+0.020 0.588 0.412 rg
+48.00 546.78 3.00 3.00 re
+f
+Q
+BT
+0.059 0.090 0.165 rg
+/Helvetica-Bold 8.20 Tf
+58.00 544.32 Td
+(2. Knowledge is Published:) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.20 Tf
+171.86 544.32 Td
+(Documents are versioned, reviewed, and atomically activated. Retrieval matches active versions) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.20 Tf
+58.00 533.25 Td
+(only; older answers retain original citations.) Tj
+ET
+q
+0.020 0.588 0.412 rg
+48.00 521.64 3.00 3.00 re
+f
+Q
+BT
+0.059 0.090 0.165 rg
+/Helvetica-Bold 8.20 Tf
+58.00 519.18 Td
+(3. AI Reasons; Software Decides:) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.20 Tf
+197.45 519.18 Td
+(Models classify, extract facts, and draft responses. Authorization, state transitions,) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.20 Tf
+58.00 508.11 Td
+(document publication, and audit records remain deterministic code.) Tj
+ET
+q
+0.020 0.588 0.412 rg
+48.00 496.50 3.00 3.00 re
+f
+Q
+BT
+0.059 0.090 0.165 rg
+/Helvetica-Bold 8.20 Tf
+58.00 494.04 Td
+(4. Trace Every Action:) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.20 Tf
+154.81 494.04 Td
+(Store who acted, what changed, retrieved chunks, model parameters, token counts, latency, and error) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.20 Tf
+58.00 482.97 Td
+(identifiers in durable storage.) Tj
+ET
+q
+0.020 0.588 0.412 rg
+48.00 471.36 3.00 3.00 re
+f
+Q
+BT
+0.059 0.090 0.165 rg
+/Helvetica-Bold 8.20 Tf
+58.00 468.90 Td
+(5. Stateless Compute Scales:) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.20 Tf
+180.39 468.90 Td
+(FastAPI API containers hold no local durable state. PostgreSQL + pgvector remains the single) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.20 Tf
+58.00 457.83 Td
+(source of truth.) Tj
+ET
+q
+0.020 0.588 0.412 rg
+48.00 446.22 3.00 3.00 re
+f
+Q
+BT
+0.059 0.090 0.165 rg
+/Helvetica-Bold 8.20 Tf
+58.00 443.76 Td
+(6. Split Only Under Pressure:) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.20 Tf
+184.66 443.76 Td
+(Start as a modular monolith with one worker service. Defer microservices and Kafka until) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.20 Tf
+58.00 432.69 Td
+(measured bottlenecks demand them.) Tj
+ET
+q
+0.950 0.970 1.000 rg
+0.886 0.910 0.941 RG
+0.75 w
+44.00 361.67 507.28 56.95 re
+B
+Q
+q
+0.118 0.251 0.686 rg
+44.00 361.67 4.00 56.95 re
+f
+Q
+BT
+0.118 0.251 0.686 rg
+/Helvetica-Bold 8.50 Tf
+58.00 402.62 Td
+(SYSTEM BOUNDARY CONSTRAINT) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.50 Tf
+58.00 390.62 Td
+(The product explains official procedures and manages support workflows. It MUST NEVER fabricate payment confirmations,) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.50 Tf
+58.00 379.15 Td
+(ownership status, NIMC availability, or authoritative facts without verified integration or human sign-off.) Tj
+ET
+q
+0.118 0.251 0.686 rg
+44.00 340.67 4.00 16.00 re
+f
+Q
+BT
+0.059 0.090 0.165 rg
+/Helvetica-Bold 13.50 Tf
+54.00 343.67 Td
+(2. Unified Module Directory Layout) Tj
+ET
+q
+0.886 0.910 0.941 RG
+0.75 w
+54.00 335.67 m 551.28 335.67 l S
+Q
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.50 Tf
+44.00 323.67 Td
+(All phases build additive, cohesive modules into a single unified directory tree:) Tj
+ET
+q
+0.100 0.130 0.180 rg
+0.200 0.250 0.320 RG
+0.75 w
+44.00 189.07 507.28 119.12 re
+B
+Q
+q
+0.060 0.080 0.120 rg
+44.00 292.20 507.28 16.00 re
+f
+Q
+BT
+0.600 0.700 0.850 rg
+/Helvetica-Bold 7.50 Tf
+54.00 296.20 Td
+(Repository Structure \(Modular Monolith\)) Tj
+ET
+BT
+0.880 0.920 0.980 rg
+/Courier 7.50 Tf
+54.00 280.20 Td
+(app/) Tj
+ET
+BT
+0.880 0.920 0.980 rg
+/Courier 7.50 Tf
+54.00 270.07 Td
+(  api/          # Customer, Support Console, and Operations Dashboard routes) Tj
+ET
+BT
+0.880 0.920 0.980 rg
+/Courier 7.50 Tf
+54.00 259.95 Td
+(  cases/        # Durable case domain, models, named commands, strict state machine) Tj
+ET
+BT
+0.880 0.920 0.980 rg
+/Courier 7.50 Tf
+54.00 249.82 Td
+(  knowledge/    # Document versioning, PDF parsing, chunking, atomic publication) Tj
+ET
+BT
+0.880 0.920 0.980 rg
+/Courier 7.50 Tf
+54.00 239.70 Td
+(  ai/           # Binary intent routing, vector retrieval \(pgvector\), inference & trace) Tj
+ET
+BT
+0.880 0.920 0.980 rg
+/Courier 7.50 Tf
+54.00 229.57 Td
+(  platform/     # Async DB engine, JWT/RBAC auth, PII-masked audit, telemetry) Tj
+ET
+BT
+0.880 0.920 0.980 rg
+/Courier 7.50 Tf
+54.00 219.45 Td
+(worker/         # Background tasks: PDF ingestion, embeddings, notifications, exports) Tj
+ET
+BT
+0.880 0.920 0.980 rg
+/Courier 7.50 Tf
+54.00 209.32 Td
+(migrations/     # Versioned Alembic migrations) Tj
+ET
+BT
+0.880 0.920 0.980 rg
+/Courier 7.50 Tf
+54.00 199.20 Td
+(tests/          # Unit, integration, grounding retrieval, and load test suites) Tj
+ET
+q
+0.886 0.910 0.941 RG
+0.75 w
+44.00 35.00 m 551.28 35.00 l S
+Q
+BT
+0.392 0.455 0.545 rg
+/Helvetica 7.50 Tf
+44.00 24.00 Td
+(CMR Specialist Product Architecture Design Spec \(v1.0\) - Execution Phase) Tj
+ET
+BT
+0.392 0.455 0.545 rg
+/Helvetica-Bold 7.50 Tf
+516.28 24.00 Td
+(Page 1) Tj
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Contents 6 0 R /Resources << /Font << /Helvetica 11 0 R /Helvetica-Bold 12 0 R /Courier 13 0 R >> >> >>
+endobj
+6 0 obj
+<< /Length 7444 >>
+stream
+BT
+0.392 0.455 0.545 rg
+/Helvetica-Bold 7.50 Tf
+44.00 809.89 Td
+(FRIEDEN TECHNOLOGY | CMR SPECIALIST EXECUTION PLAN) Tj
+ET
+q
+0.886 0.910 0.941 RG
+0.75 w
+44.00 803.89 m 551.28 803.89 l S
+Q
+q
+0.118 0.251 0.686 rg
+44.00 780.89 4.00 16.00 re
+f
+Q
+BT
+0.059 0.090 0.165 rg
+/Helvetica-Bold 13.50 Tf
+54.00 783.89 Td
+(3. Phased Execution Roadmap) Tj
+ET
+q
+0.886 0.910 0.941 RG
+0.75 w
+54.00 775.89 m 551.28 775.89 l S
+Q
+BT
+0.118 0.251 0.686 rg
+/Helvetica-Bold 11.00 Tf
+44.00 757.89 Td
+(Phase 0: Foundation & Platform Infrastructure) Tj
+ET
+q
+0.020 0.588 0.412 RG
+1.00 w
+44.00 751.89 m 194.00 751.89 l S
+Q
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.50 Tf
+44.00 741.89 Td
+(Establish repository layout, container environments, Pydantic typed configuration, async PostgreSQL session factory,) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.50 Tf
+44.00 730.41 Td
+(telemetry middleware with X-Request-ID, append-only audit logging with PII masking, and role-based access control \(RBAC\).) Tj
+ET
+q
+0.020 0.588 0.412 rg
+48.00 717.34 3.00 3.00 re
+f
+Q
+BT
+0.059 0.090 0.165 rg
+/Helvetica-Bold 8.00 Tf
+58.00 714.94 Td
+([app/config.py]) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.00 Tf
+123.40 714.94 Td
+(Typed settings for DB, Redis, S3, LLM keys, and token limits.) Tj
+ET
+q
+0.020 0.588 0.412 rg
+48.00 704.54 3.00 3.00 re
+f
+Q
+BT
+0.059 0.090 0.165 rg
+/Helvetica-Bold 8.00 Tf
+58.00 702.14 Td
+([app/platform/database.py]) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.00 Tf
+169.16 702.14 Td
+(Async SQLAlchemy engine, async session maker, declarative Base with UUID primary keys.) Tj
+ET
+q
+0.020 0.588 0.412 rg
+48.00 691.74 3.00 3.00 re
+f
+Q
+BT
+0.059 0.090 0.165 rg
+/Helvetica-Bold 8.00 Tf
+58.00 689.34 Td
+([app/platform/auth.py]) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.00 Tf
+152.52 689.34 Td
+(JWT generation/validation, password hashing \(bcrypt\), RBAC dependencies \(customer, support, admin,) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.00 Tf
+58.00 678.54 Td
+(auditor\).) Tj
+ET
+q
+0.020 0.588 0.412 rg
+48.00 668.14 3.00 3.00 re
+f
+Q
+BT
+0.059 0.090 0.165 rg
+/Helvetica-Bold 8.00 Tf
+58.00 665.74 Td
+([app/platform/audit.py]) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.00 Tf
+156.68 665.74 Td
+(Append-only audit sink with automatic PII masking \(BVN, NIN, passwords, card numbers\).) Tj
+ET
+q
+0.020 0.588 0.412 rg
+48.00 655.34 3.00 3.00 re
+f
+Q
+BT
+0.059 0.090 0.165 rg
+/Helvetica-Bold 8.00 Tf
+58.00 652.94 Td
+([app/platform/telemetry.py]) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.00 Tf
+173.32 652.94 Td
+(FastAPI middleware injecting X-Request-ID and structured structlog context.) Tj
+ET
+q
+0.965 0.973 0.984 rg
+0.886 0.910 0.941 RG
+0.75 w
+44.00 594.67 507.28 45.48 re
+B
+Q
+q
+0.392 0.455 0.545 rg
+44.00 594.67 4.00 45.48 re
+f
+Q
+BT
+0.059 0.090 0.165 rg
+/Helvetica-Bold 8.50 Tf
+58.00 624.14 Td
+(PHASE 0 EXIT CHECK) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.50 Tf
+58.00 612.14 Td
+(API and worker containers start cleanly via docker-compose; GET /health returns 200 OK with Request ID.) Tj
+ET
+BT
+0.118 0.251 0.686 rg
+/Helvetica-Bold 11.00 Tf
+44.00 578.67 Td
+(Phase 1: Durable Core & Case State Machine) Tj
+ET
+q
+0.020 0.588 0.412 RG
+1.00 w
+44.00 572.67 m 194.00 572.67 l S
+Q
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.50 Tf
+44.00 562.67 Td
+(Implement core database entities \(Person, Case, CaseEvent, Conversation, Message, ExtractedFact\) and enforce strict case) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.50 Tf
+44.00 551.19 Td
+(lifecycle transitions via named commands.) Tj
+ET
+q
+0.020 0.588 0.412 rg
+48.00 538.12 3.00 3.00 re
+f
+Q
+BT
+0.059 0.090 0.165 rg
+/Helvetica-Bold 8.00 Tf
+58.00 535.72 Td
+([app/cases/models.py]) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.00 Tf
+148.36 535.72 Td
+(Person, Case, CaseEvent, Conversation, Message, ExtractedFact models.) Tj
+ET
+q
+0.020 0.588 0.412 rg
+48.00 525.32 3.00 3.00 re
+f
+Q
+BT
+0.059 0.090 0.165 rg
+/Helvetica-Bold 8.00 Tf
+58.00 522.92 Td
+([app/cases/state_machine.py]) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.00 Tf
+177.48 522.92 Td
+(Strict transitions: NEW -> TRIAGED -> WAITING <-> IN_REVIEW -> RESOLVED -> CLOSED.) Tj
+ET
+q
+0.020 0.588 0.412 rg
+48.00 512.52 3.00 3.00 re
+f
+Q
+BT
+0.059 0.090 0.165 rg
+/Helvetica-Bold 8.00 Tf
+58.00 510.12 Td
+([app/cases/commands.py]) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.00 Tf
+156.68 510.12 Td
+(Named transition commands: Triage, Assign, RequestInfo, CustomerReply, Resolve, Reopen, Close.) Tj
+ET
+q
+0.020 0.588 0.412 rg
+48.00 499.72 3.00 3.00 re
+f
+Q
+BT
+0.059 0.090 0.165 rg
+/Helvetica-Bold 8.00 Tf
+58.00 497.32 Td
+([migrations/versions/0001_initial_schema.py]) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.00 Tf
+244.04 497.32 Td
+(Alembic migration creating all core tables and pgvector extension.) Tj
+ET
+q
+0.965 0.973 0.984 rg
+0.886 0.910 0.941 RG
+0.75 w
+44.00 439.04 507.28 45.48 re
+B
+Q
+q
+0.392 0.455 0.545 rg
+44.00 439.04 4.00 45.48 re
+f
+Q
+BT
+0.059 0.090 0.165 rg
+/Helvetica-Bold 8.50 Tf
+58.00 468.52 Td
+(PHASE 1 EXIT CHECK) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.50 Tf
+58.00 456.52 Td
+(Case survives database restart with an intact chronological timeline. Illegal transitions raise HTTP 400/422.) Tj
+ET
+BT
+0.118 0.251 0.686 rg
+/Helvetica-Bold 11.00 Tf
+44.00 423.04 Td
+(Phase 2: Customer Surface) Tj
+ET
+q
+0.020 0.588 0.412 RG
+1.00 w
+44.00 417.04 m 194.00 417.04 l S
+Q
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.50 Tf
+44.00 407.04 Td
+(Customer-facing endpoints for asking informational questions, grounded answers, opening cases without repeating facts, and) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.50 Tf
+44.00 395.57 Td
+(tracking status.) Tj
+ET
+q
+0.020 0.588 0.412 rg
+48.00 382.49 3.00 3.00 re
+f
+Q
+BT
+0.059 0.090 0.165 rg
+/Helvetica-Bold 8.00 Tf
+58.00 380.09 Td
+(POST /api/v1/customer/questions:) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.00 Tf
+194.12 380.09 Td
+(Ingest question, execute binary routing, return grounded answer with citations or prompt case) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.00 Tf
+58.00 369.29 Td
+(creation.) Tj
+ET
+q
+0.020 0.588 0.412 rg
+48.00 358.89 3.00 3.00 re
+f
+Q
+BT
+0.059 0.090 0.165 rg
+/Helvetica-Bold 8.00 Tf
+58.00 356.49 Td
+(POST /api/v1/customer/cases:) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.00 Tf
+177.48 356.49 Td
+(Open support case with extracted facts pre-populated from chat history.) Tj
+ET
+q
+0.020 0.588 0.412 rg
+48.00 346.09 3.00 3.00 re
+f
+Q
+BT
+0.059 0.090 0.165 rg
+/Helvetica-Bold 8.00 Tf
+58.00 343.69 Td
+(GET /api/v1/customer/cases/{id}:) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.00 Tf
+194.12 343.69 Td
+(Retrieve case timeline, messages, requested actions, and attachments.) Tj
+ET
+q
+0.020 0.588 0.412 rg
+48.00 333.29 3.00 3.00 re
+f
+Q
+BT
+0.059 0.090 0.165 rg
+/Helvetica-Bold 8.00 Tf
+58.00 330.89 Td
+(POST /api/v1/customer/cases/{id}/messages:) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.00 Tf
+235.72 330.89 Td
+(Submit customer response \(automatically shifts case from WAITING to IN_REVIEW\).) Tj
+ET
+q
+0.965 0.973 0.984 rg
+0.886 0.910 0.941 RG
+0.75 w
+44.00 272.62 507.28 45.48 re
+B
+Q
+q
+0.392 0.455 0.545 rg
+44.00 272.62 4.00 45.48 re
+f
+Q
+BT
+0.059 0.090 0.165 rg
+/Helvetica-Bold 8.50 Tf
+58.00 302.09 Td
+(PHASE 2 EXIT CHECK) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.50 Tf
+58.00 290.09 Td
+(A customer can ask questions, open a case, reply, and track case progress end-to-end.) Tj
+ET
+q
+0.886 0.910 0.941 RG
+0.75 w
+44.00 35.00 m 551.28 35.00 l S
+Q
+BT
+0.392 0.455 0.545 rg
+/Helvetica 7.50 Tf
+44.00 24.00 Td
+(CMR Specialist Product Architecture Design Spec \(v1.0\) - Execution Phase) Tj
+ET
+BT
+0.392 0.455 0.545 rg
+/Helvetica-Bold 7.50 Tf
+516.28 24.00 Td
+(Page 2) Tj
+ET
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Contents 8 0 R /Resources << /Font << /Helvetica 11 0 R /Helvetica-Bold 12 0 R /Courier 13 0 R >> >> >>
+endobj
+8 0 obj
+<< /Length 6786 >>
+stream
+BT
+0.392 0.455 0.545 rg
+/Helvetica-Bold 7.50 Tf
+44.00 809.89 Td
+(FRIEDEN TECHNOLOGY | CMR SPECIALIST EXECUTION PLAN) Tj
+ET
+q
+0.886 0.910 0.941 RG
+0.75 w
+44.00 803.89 m 551.28 803.89 l S
+Q
+BT
+0.118 0.251 0.686 rg
+/Helvetica-Bold 11.00 Tf
+44.00 785.89 Td
+(Phase 3: Support Console Surface) Tj
+ET
+q
+0.020 0.588 0.412 RG
+1.00 w
+44.00 779.89 m 194.00 779.89 l S
+Q
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.50 Tf
+44.00 769.89 Td
+(Internal staff console allowing agents and supervisors to search people, view cross-case histories, filter queues, assign) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.50 Tf
+44.00 758.41 Td
+(work, execute transitions via named commands, and record internal notes.) Tj
+ET
+q
+0.020 0.588 0.412 rg
+48.00 745.34 3.00 3.00 re
+f
+Q
+BT
+0.059 0.090 0.165 rg
+/Helvetica-Bold 8.00 Tf
+58.00 742.94 Td
+(GET /api/v1/support/people) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.00 Tf
+169.16 742.94 Td
+(Cross-case search by name, phone, email, or verified identity identifier.) Tj
+ET
+q
+0.020 0.588 0.412 rg
+48.00 732.54 3.00 3.00 re
+f
+Q
+BT
+0.059 0.090 0.165 rg
+/Helvetica-Bold 8.00 Tf
+58.00 730.14 Td
+(GET /api/v1/support/cases) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.00 Tf
+165.00 730.14 Td
+(Queue filtering by status, priority \(LOW, NORMAL, HIGH, URGENT\), category, assignee, and SLA.) Tj
+ET
+q
+0.020 0.588 0.412 rg
+48.00 719.74 3.00 3.00 re
+f
+Q
+BT
+0.059 0.090 0.165 rg
+/Helvetica-Bold 8.00 Tf
+58.00 717.34 Td
+(POST /api/v1/support/cases/{id}/commands/{cmd}) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.00 Tf
+252.36 717.34 Td
+(Execute named commands \(Triage, Assign, RequestInfo, Resolve, Reopen, Close\).) Tj
+ET
+q
+0.020 0.588 0.412 rg
+48.00 706.94 3.00 3.00 re
+f
+Q
+BT
+0.059 0.090 0.165 rg
+/Helvetica-Bold 8.00 Tf
+58.00 704.54 Td
+(POST /api/v1/support/cases/{id}/notes) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.00 Tf
+214.92 704.54 Td
+(Record internal staff notes and decisions.) Tj
+ET
+q
+0.965 0.973 0.984 rg
+0.886 0.910 0.941 RG
+0.75 w
+44.00 646.27 507.28 45.48 re
+B
+Q
+q
+0.392 0.455 0.545 rg
+44.00 646.27 4.00 45.48 re
+f
+Q
+BT
+0.059 0.090 0.165 rg
+/Helvetica-Bold 8.50 Tf
+58.00 675.74 Td
+(PHASE 3 EXIT CHECK) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.50 Tf
+58.00 663.74 Td
+(Support staff can triage, assign, and resolve cases completely without requiring direct SQL access.) Tj
+ET
+BT
+0.118 0.251 0.686 rg
+/Helvetica-Bold 11.00 Tf
+44.00 630.27 Td
+(Phase 4: Knowledge Base & Vector Publishing) Tj
+ET
+q
+0.020 0.588 0.412 RG
+1.00 w
+44.00 624.27 m 194.00 624.27 l S
+Q
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.50 Tf
+44.00 614.27 Td
+(Document management pipeline supporting PDF parsing, text extraction, semantic chunking, pgvector embedding generation, and) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.50 Tf
+44.00 602.79 Td
+(atomic version activation.) Tj
+ET
+q
+0.020 0.588 0.412 rg
+48.00 589.72 3.00 3.00 re
+f
+Q
+BT
+0.059 0.090 0.165 rg
+/Helvetica-Bold 8.00 Tf
+58.00 587.32 Td
+(app/knowledge/models.py:) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.00 Tf
+160.84 587.32 Td
+(Document, DocumentVersion \(DRAFT, ACTIVE, RETIRED\), Chunk \(with Vector\(1536\)\).) Tj
+ET
+q
+0.020 0.588 0.412 rg
+48.00 576.92 3.00 3.00 re
+f
+Q
+BT
+0.059 0.090 0.165 rg
+/Helvetica-Bold 8.00 Tf
+58.00 574.52 Td
+(worker/tasks/ingestion.py:) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.00 Tf
+169.16 574.52 Td
+(Async background task extracting PDF text, generating chunks, and computing vector embeddings.) Tj
+ET
+q
+0.020 0.588 0.412 rg
+48.00 564.12 3.00 3.00 re
+f
+Q
+BT
+0.059 0.090 0.165 rg
+/Helvetica-Bold 8.00 Tf
+58.00 561.72 Td
+(app/knowledge/service.py:) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.00 Tf
+165.00 561.72 Td
+(Atomic version switch: marks active as RETIRED and draft as ACTIVE in a single transaction.) Tj
+ET
+q
+0.020 0.588 0.412 rg
+48.00 551.32 3.00 3.00 re
+f
+Q
+BT
+0.059 0.090 0.165 rg
+/Helvetica-Bold 8.00 Tf
+58.00 548.92 Td
+(Publishing Guarantee:) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.00 Tf
+148.36 548.92 Td
+(A version is either entirely active or inactive. Customers never see partial ingestion chunks.) Tj
+ET
+q
+0.965 0.973 0.984 rg
+0.886 0.910 0.941 RG
+0.75 w
+44.00 490.64 507.28 45.48 re
+B
+Q
+q
+0.392 0.455 0.545 rg
+44.00 490.64 4.00 45.48 re
+f
+Q
+BT
+0.059 0.090 0.165 rg
+/Helvetica-Bold 8.50 Tf
+58.00 520.12 Td
+(PHASE 4 EXIT CHECK) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.50 Tf
+58.00 508.12 Td
+(A new PDF can be uploaded in draft, processed in background, published atomically, cited, and rolled back safely.) Tj
+ET
+BT
+0.118 0.251 0.686 rg
+/Helvetica-Bold 11.00 Tf
+44.00 474.64 Td
+(Phase 5: AI Grounding, Routing & Traceability) Tj
+ET
+q
+0.020 0.588 0.412 RG
+1.00 w
+44.00 468.64 m 194.00 468.64 l S
+Q
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.50 Tf
+44.00 458.64 Td
+(Binary intent routing, active-version vector retrieval, prompt synthesis enforcing strict citations, and full AI execution) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.50 Tf
+44.00 447.17 Td
+(trace recording.) Tj
+ET
+q
+0.020 0.588 0.412 rg
+48.00 434.09 3.00 3.00 re
+f
+Q
+BT
+0.059 0.090 0.165 rg
+/Helvetica-Bold 8.00 Tf
+58.00 431.69 Td
+(app/ai/router.py) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.00 Tf
+127.56 431.69 Td
+(Binary Router: classifies query into INFORMATIONAL \(knowledge query\) vs SUPPORT_REQUEST \(open/update case\).) Tj
+ET
+q
+0.020 0.588 0.412 rg
+48.00 421.29 3.00 3.00 re
+f
+Q
+BT
+0.059 0.090 0.165 rg
+/Helvetica-Bold 8.00 Tf
+58.00 418.89 Td
+(app/ai/retrieval.py) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.00 Tf
+140.04 418.89 Td
+(Cosine similarity search querying ONLY chunks linked to ACTIVE DocumentVersions.) Tj
+ET
+q
+0.020 0.588 0.412 rg
+48.00 408.49 3.00 3.00 re
+f
+Q
+BT
+0.059 0.090 0.165 rg
+/Helvetica-Bold 8.00 Tf
+58.00 406.09 Td
+(app/ai/inference.py) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.00 Tf
+140.04 406.09 Td
+(Grounded answer generator enforcing [Doc: title, Chunk: id] citations and boundary guardrails.) Tj
+ET
+q
+0.020 0.588 0.412 rg
+48.00 395.69 3.00 3.00 re
+f
+Q
+BT
+0.059 0.090 0.165 rg
+/Helvetica-Bold 8.00 Tf
+58.00 393.29 Td
+(app/ai/models.py \(AIRun\)) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.00 Tf
+160.84 393.29 Td
+(Persists model name, prompt template version, retrieved chunks, token counts, latency, and feedback.) Tj
+ET
+q
+0.965 0.973 0.984 rg
+0.886 0.910 0.941 RG
+0.75 w
+44.00 335.02 507.28 45.48 re
+B
+Q
+q
+0.392 0.455 0.545 rg
+44.00 335.02 4.00 45.48 re
+f
+Q
+BT
+0.059 0.090 0.165 rg
+/Helvetica-Bold 8.50 Tf
+58.00 364.49 Td
+(PHASE 5 EXIT CHECK) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.50 Tf
+58.00 352.49 Td
+(Every AI answer can be completely reconstructed and verified from stored AIRun records and citations.) Tj
+ET
+q
+0.886 0.910 0.941 RG
+0.75 w
+44.00 35.00 m 551.28 35.00 l S
+Q
+BT
+0.392 0.455 0.545 rg
+/Helvetica 7.50 Tf
+44.00 24.00 Td
+(CMR Specialist Product Architecture Design Spec \(v1.0\) - Execution Phase) Tj
+ET
+BT
+0.392 0.455 0.545 rg
+/Helvetica-Bold 7.50 Tf
+516.28 24.00 Td
+(Page 3) Tj
+ET
+endstream
+endobj
+9 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Contents 10 0 R /Resources << /Font << /Helvetica 11 0 R /Helvetica-Bold 12 0 R /Courier 13 0 R >> >> >>
+endobj
+10 0 obj
+<< /Length 8609 >>
+stream
+BT
+0.392 0.455 0.545 rg
+/Helvetica-Bold 7.50 Tf
+44.00 809.89 Td
+(FRIEDEN TECHNOLOGY | CMR SPECIALIST EXECUTION PLAN) Tj
+ET
+q
+0.886 0.910 0.941 RG
+0.75 w
+44.00 803.89 m 551.28 803.89 l S
+Q
+BT
+0.118 0.251 0.686 rg
+/Helvetica-Bold 11.00 Tf
+44.00 785.89 Td
+(Phase 6: Operations Dashboard & Reliability) Tj
+ET
+q
+0.020 0.588 0.412 RG
+1.00 w
+44.00 779.89 m 194.00 779.89 l S
+Q
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.50 Tf
+44.00 769.89 Td
+(Observability dashboard providing health probes, operational metrics across 4 key pillars, searchable PII-masked audit logs,) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.50 Tf
+44.00 758.41 Td
+(and incident diagnosis runbooks.) Tj
+ET
+q
+0.080 0.130 0.220 rg
+0.080 0.130 0.220 RG
+1.00 w
+44.00 722.94 507.28 20.00 re
+B
+Q
+BT
+1.000 1.000 1.000 rg
+/Helvetica-Bold 7.50 Tf
+50.00 728.94 Td
+(PILLAR) Tj
+ET
+BT
+1.000 1.000 1.000 rg
+/Helvetica-Bold 7.50 Tf
+160.00 728.94 Td
+(TRACKED METRICS) Tj
+ET
+BT
+1.000 1.000 1.000 rg
+/Helvetica-Bold 7.50 Tf
+390.00 728.94 Td
+(OPERATIONAL TARGET) Tj
+ET
+q
+1.000 1.000 1.000 rg
+0.886 0.910 0.941 RG
+0.50 w
+44.00 704.81 507.28 18.12 re
+B
+Q
+BT
+0.118 0.161 0.231 rg
+/Helvetica 7.50 Tf
+50.00 711.44 Td
+(Service Health) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 7.50 Tf
+160.00 711.44 Td
+(Request volume, error rate, p50/p95 latency, container uptime) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 7.50 Tf
+390.00 711.44 Td
+(Monthly availability >= 99.9%) Tj
+ET
+q
+0.965 0.973 0.984 rg
+0.886 0.910 0.941 RG
+0.50 w
+44.00 686.69 507.28 18.12 re
+B
+Q
+BT
+0.118 0.161 0.231 rg
+/Helvetica 7.50 Tf
+50.00 693.31 Td
+(Customer Flow) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 7.50 Tf
+160.00 693.31 Td
+(Answers delivered, cases opened, case age, resolution time) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 7.50 Tf
+390.00 693.31 Td
+(Non-AI p95 latency < 500 ms) Tj
+ET
+q
+1.000 1.000 1.000 rg
+0.886 0.910 0.941 RG
+0.50 w
+44.00 668.56 507.28 18.12 re
+B
+Q
+BT
+0.118 0.161 0.231 rg
+/Helvetica 7.50 Tf
+50.00 675.19 Td
+(AI Quality) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 7.50 Tf
+160.00 675.19 Td
+(Retrieval hit rate, fallback rate, token cost, user feedback) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 7.50 Tf
+390.00 675.19 Td
+(Completed AI answer p95 < 12 sec) Tj
+ET
+q
+0.965 0.973 0.984 rg
+0.886 0.910 0.941 RG
+0.50 w
+44.00 640.31 507.28 28.25 re
+B
+Q
+BT
+0.118 0.161 0.231 rg
+/Helvetica 7.50 Tf
+50.00 657.06 Td
+(Knowledge) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 7.50 Tf
+160.00 657.06 Td
+(Active versions, failed ingestions, publish age, zero-result) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 7.50 Tf
+160.00 646.94 Td
+(queries) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 7.50 Tf
+390.00 657.06 Td
+(Doc ingestion to publish < 5 min) Tj
+ET
+q
+0.965 0.973 0.984 rg
+0.886 0.910 0.941 RG
+0.75 w
+44.00 582.84 507.28 45.48 re
+B
+Q
+q
+0.392 0.455 0.545 rg
+44.00 582.84 4.00 45.48 re
+f
+Q
+BT
+0.059 0.090 0.165 rg
+/Helvetica-Bold 8.50 Tf
+58.00 612.31 Td
+(PHASE 6 EXIT CHECK) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.50 Tf
+58.00 600.31 Td
+(An operator can identify a failing request by its Request ID and view the exact error trace and database events.) Tj
+ET
+BT
+0.118 0.251 0.686 rg
+/Helvetica-Bold 11.00 Tf
+44.00 566.84 Td
+(Phase 7: Launch, Verification & Testing) Tj
+ET
+q
+0.020 0.588 0.412 RG
+1.00 w
+44.00 560.84 m 194.00 560.84 l S
+Q
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.50 Tf
+44.00 550.84 Td
+(Execute end-to-end integration tests, seed realistic procedural knowledge and test cases, perform load testing at 2x peak) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.50 Tf
+44.00 539.36 Td
+(traffic, and verify disaster recovery runbooks.) Tj
+ET
+q
+0.020 0.588 0.412 rg
+48.00 526.29 3.00 3.00 re
+f
+Q
+BT
+0.059 0.090 0.165 rg
+/Helvetica-Bold 8.00 Tf
+58.00 523.89 Td
+(Database Seeder \(scripts/seed_db.py\):) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.00 Tf
+214.92 523.89 Td
+(Populates default admin/support accounts, active procedural documents, and sample cases.) Tj
+ET
+q
+0.020 0.588 0.412 rg
+48.00 513.49 3.00 3.00 re
+f
+Q
+BT
+0.059 0.090 0.165 rg
+/Helvetica-Bold 8.00 Tf
+58.00 511.09 Td
+(E2E Integration Suite \(tests/integration/\):) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.00 Tf
+239.88 511.09 Td
+(Verifies full lifecycle: Question -> Case Created -> Triaged -> In Review ->) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.00 Tf
+58.00 500.29 Td
+(Resolved -> Closed.) Tj
+ET
+q
+0.020 0.588 0.412 rg
+48.00 489.89 3.00 3.00 re
+f
+Q
+BT
+0.059 0.090 0.165 rg
+/Helvetica-Bold 8.00 Tf
+58.00 487.49 Td
+(Disaster Recovery Drill:) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.00 Tf
+160.84 487.49 Td
+(Point-in-time PostgreSQL restore and atomic container rollback verified.) Tj
+ET
+q
+0.965 0.973 0.984 rg
+0.886 0.910 0.941 RG
+0.75 w
+44.00 429.21 507.28 45.48 re
+B
+Q
+q
+0.392 0.455 0.545 rg
+44.00 429.21 4.00 45.48 re
+f
+Q
+BT
+0.059 0.090 0.165 rg
+/Helvetica-Bold 8.50 Tf
+58.00 458.69 Td
+(PHASE 7 EXIT CHECK) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 8.50 Tf
+58.00 446.69 Td
+(Automated test suite passes 100%; service meets all SLO targets under simulated 2x peak load.) Tj
+ET
+q
+0.118 0.251 0.686 rg
+44.00 408.21 4.00 16.00 re
+f
+Q
+BT
+0.059 0.090 0.165 rg
+/Helvetica-Bold 13.50 Tf
+54.00 411.21 Td
+(4. Component Dependency & Flow Matrix) Tj
+ET
+q
+0.886 0.910 0.941 RG
+0.75 w
+54.00 403.21 m 551.28 403.21 l S
+Q
+q
+0.080 0.130 0.220 rg
+0.080 0.130 0.220 RG
+1.00 w
+44.00 371.21 507.28 20.00 re
+B
+Q
+BT
+1.000 1.000 1.000 rg
+/Helvetica-Bold 7.50 Tf
+50.00 377.21 Td
+(MODULE) Tj
+ET
+BT
+1.000 1.000 1.000 rg
+/Helvetica-Bold 7.50 Tf
+135.00 377.21 Td
+(CORE ROLE) Tj
+ET
+BT
+1.000 1.000 1.000 rg
+/Helvetica-Bold 7.50 Tf
+285.00 377.21 Td
+(UPSTREAM TRIGGER) Tj
+ET
+BT
+1.000 1.000 1.000 rg
+/Helvetica-Bold 7.50 Tf
+425.00 377.21 Td
+(OUTPUT STATE) Tj
+ET
+q
+1.000 1.000 1.000 rg
+0.886 0.910 0.941 RG
+0.50 w
+44.00 353.09 507.28 18.12 re
+B
+Q
+BT
+0.118 0.161 0.231 rg
+/Helvetica 7.50 Tf
+50.00 359.71 Td
+(app/platform) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 7.50 Tf
+135.00 359.71 Td
+(Database, Auth, Audit, Telemetry) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 7.50 Tf
+285.00 359.71 Td
+(All HTTP requests & tasks) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 7.50 Tf
+425.00 359.71 Td
+(Postgres, Redis, Structured Logs) Tj
+ET
+q
+0.965 0.973 0.984 rg
+0.886 0.910 0.941 RG
+0.50 w
+44.00 334.96 507.28 18.12 re
+B
+Q
+BT
+0.118 0.161 0.231 rg
+/Helvetica 7.50 Tf
+50.00 341.59 Td
+(app/cases) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 7.50 Tf
+135.00 341.59 Td
+(Case lifecycle & state machine) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 7.50 Tf
+285.00 341.59 Td
+(Customer & Support commands) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 7.50 Tf
+425.00 341.59 Td
+(CaseEvent, Case, ExtractedFact) Tj
+ET
+q
+1.000 1.000 1.000 rg
+0.886 0.910 0.941 RG
+0.50 w
+44.00 316.84 507.28 18.12 re
+B
+Q
+BT
+0.118 0.161 0.231 rg
+/Helvetica 7.50 Tf
+50.00 323.46 Td
+(app/knowledge) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 7.50 Tf
+135.00 323.46 Td
+(Ingestion & atomic publishing) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 7.50 Tf
+285.00 323.46 Td
+(Support document upload/publish) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 7.50 Tf
+425.00 323.46 Td
+(DocumentVersion, Chunks) Tj
+ET
+q
+0.965 0.973 0.984 rg
+0.886 0.910 0.941 RG
+0.50 w
+44.00 298.71 507.28 18.12 re
+B
+Q
+BT
+0.118 0.161 0.231 rg
+/Helvetica 7.50 Tf
+50.00 305.34 Td
+(app/ai) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 7.50 Tf
+135.00 305.34 Td
+(Intent routing, retrieval & LLM) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 7.50 Tf
+285.00 305.34 Td
+(Customer question endpoint) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 7.50 Tf
+425.00 305.34 Td
+(AIRun, Grounded Answer, Citations) Tj
+ET
+q
+1.000 1.000 1.000 rg
+0.886 0.910 0.941 RG
+0.50 w
+44.00 280.59 507.28 18.12 re
+B
+Q
+BT
+0.118 0.161 0.231 rg
+/Helvetica 7.50 Tf
+50.00 287.21 Td
+(worker/tasks) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 7.50 Tf
+135.00 287.21 Td
+(Async document & vector worker) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 7.50 Tf
+285.00 287.21 Td
+(Redis task queue) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 7.50 Tf
+425.00 287.21 Td
+(Vector embeddings, Notifications) Tj
+ET
+q
+0.965 0.973 0.984 rg
+0.886 0.910 0.941 RG
+0.50 w
+44.00 262.46 507.28 18.12 re
+B
+Q
+BT
+0.118 0.161 0.231 rg
+/Helvetica 7.50 Tf
+50.00 269.09 Td
+(app/api) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 7.50 Tf
+135.00 269.09 Td
+(Three distinct surface routers) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 7.50 Tf
+285.00 269.09 Td
+(End users / Consoles / Dashboard) Tj
+ET
+BT
+0.118 0.161 0.231 rg
+/Helvetica 7.50 Tf
+425.00 269.09 Td
+(Dispatches to Domain Services) Tj
+ET
+q
+0.886 0.910 0.941 RG
+0.75 w
+44.00 35.00 m 551.28 35.00 l S
+Q
+BT
+0.392 0.455 0.545 rg
+/Helvetica 7.50 Tf
+44.00 24.00 Td
+(CMR Specialist Product Architecture Design Spec \(v1.0\) - Execution Phase) Tj
+ET
+BT
+0.392 0.455 0.545 rg
+/Helvetica-Bold 7.50 Tf
+516.28 24.00 Td
+(Page 4) Tj
+ET
+endstream
+endobj
+11 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+12 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
+endobj
+13 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier /Encoding /WinAnsiEncoding >>
+endobj
+xref
+0 14
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000139 00000 n 
+0000000318 00000 n 
+0000007247 00000 n 
+0000007426 00000 n 
+0000014922 00000 n 
+0000015101 00000 n 
+0000021939 00000 n 
+0000022119 00000 n 
+0000030781 00000 n 
+0000030879 00000 n 
+0000030982 00000 n 
+trailer
+<< /Size 14 /Root 1 0 R >>
+startxref
+31078
+%%EOF
