@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import structlog
 
+from app.api.v1.customer.router import router as customer_router
 from app.config import get_settings
 from app.platform.telemetry import TelemetryMiddleware, setup_telemetry
 
@@ -66,7 +67,15 @@ def create_app() -> FastAPI:
             request_id=request_id,
         )
 
+    # Customer Surface Router
+    app.include_router(
+        customer_router,
+        prefix="/api/v1/customer",
+        tags=["Customer Surface"],
+    )
+
     return app
 
 
 app = create_app()
+

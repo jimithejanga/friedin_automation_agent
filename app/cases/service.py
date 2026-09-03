@@ -283,3 +283,132 @@ class CaseService:
         session.add(msg)
         await session.flush()
         return msg
+
+    @staticmethod
+    async def get_conversation_by_id(
+        session: AsyncSession,
+        conversation_id: uuid.UUID,
+        include_messages: bool = True,
+        include_facts: bool = True,
+    ) -> Optional[Conversation]:
+        query = select(Conversation).where(Conversation.id == conversation_id)
+        if include_messages:
+            query = query.options(selectinload(Conversation.messages))
+        if include_facts:
+            query = query.options(selectinload(Conversation.extracted_facts))
+        result = await session.execute(query)
+        return result.scalar_one_or_none()
+
+    @staticmethod
+    async def find_person_by_contact(
+        session: AsyncSession,
+        phone_number: Optional[str] = None,
+        email: Optional[str] = None,
+        nin_or_bvn: Optional[str] = None,
+    ) -> Optional[Person]:
+        """Find existing Person by phone, email, or NIN."""
+        if phone_number:
+            res = await session.execute(select(Person).where(Person.phone_number == phone_number))
+            p = res.scalar_one_or_none()
+            if p:
+                return p
+        if email:
+            res = await session.execute(select(Person).where(Person.email == email))
+            p = res.scalar_one_or_none()
+            if p:
+                return p
+        if nin_or_bvn:
+            res = await session.execute(select(Person).where(Person.nin_or_bvn == nin_or_bvn))
+            p = res.scalar_one_or_none()
+            if p:
+                return p
+        return None
+
+    @staticmethod
+    async def link_conversation_facts_to_case(
+        session: AsyncSession,
+        conversation_id: uuid.UUID,
+        case_id: uuid.UUID,
+    ) -> List[ExtractedFact]:
+        """Associate a conversation and its pre-extracted facts with a case without re-typing."""
+        # 1. Update conversation link
+        conv_res = await session.execute(
+            select(Conversation).where(Conversation.id == conversation_id)
+        )
+        conv = conv_res.scalar_one_or_none()
+        if conv:
+            conv.case_id = case_id
+
+        # 2. Update facts
+        facts_res = await session.execute(
+            select(ExtractedFact).where(ExtractedFact.conversation_id == conversation_id)
+        )
+        facts = list(facts_res.scalars().all())
+        for fact in facts:
+            fact.case_id = case_id
+        await session.flush()
+        return facts
+
+    @staticmethod
+    async def get_case_for_customer(
+        session: AsyncSession,
+        case_id: uuid.UUID,
+        person_id: Optional[uuid.UUID] = None,
+    ) -> Case:
+        """Fetch case with events, facts, conversations, and messages, enforcing customer isolation."""
+        query = (
+            select(Case)
+            .where(Case.id == case_id)
+            .options(
+                selectinload(Case.events),
+                selectinload(Case.extracted_facts),
+                selectinload(Case.conversations).selectinload(Conversation.messages),
+            )
+        )
+        result = await session.execute(query)
+        case = result.scalar_one_or_none()
+        if not case:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Case '{case_id}' not found.",
+            )
+
+        if person_id is not None and case.person_id != person_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Access denied: You do not have permission to access this case.",
+            )
+
+        return case
+
+
+    @staticmethod
+    def get_case_requested_actions(case: Case) -> List[Dict[str, Any]]:
+        """Inspect case state and history to provide explicit requested actions when WAITING."""
+        if case.status != CaseStatus.WAITING:
+            return []
+
+        # Find latest RequestInfo event
+        for event in reversed(case.events):
+            if event.command_name == "RequestInfo" or event.to_status == CaseStatus.WAITING.value:
+                payload = event.payload or {}
+                return [
+                    {
+                        "action_type": payload.get("action", "PROVIDE_INFORMATION"),
+                        "reason": event.reason or "Support specialist requested additional information or documentation.",
+                        "requested_fields": payload.get("requested_items") or payload.get("requested_info"),
+                        "payload": payload,
+                        "requested_at": event.created_at.isoformat() if event.created_at else None,
+                    }
+                ]
+
+        return [
+            {
+                "action_type": "PROVIDE_INFORMATION",
+                "reason": "Support specialist is awaiting customer response to proceed.",
+                "requested_fields": None,
+                "payload": {},
+                "requested_at": case.updated_at.isoformat() if case.updated_at else None,
+            }
+        ]
+
