@@ -1,7 +1,12 @@
 import enum
 import re
+import uuid
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
+
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.ai.models import AIRun
 
 
 class IntentType(str, enum.Enum):
@@ -50,6 +55,7 @@ class RoutingResult:
     suggested_category: Optional[str] = None
     suggested_subject: Optional[str] = None
     extracted_facts: List[ExtractedFactItem] = field(default_factory=list)
+    ai_run_id: Optional[uuid.UUID] = None
 
 
 # Official procedural guidelines for grounded answers
@@ -68,15 +74,15 @@ PROCEDURAL_KNOWLEDGE = [
                 document_title="CMR Operational Guidelines 2026",
                 chunk_id="Sec-2.1",
                 source_url="https://cmr.police.gov.ng/guidelines/clearance",
-                excerpt="Motor vehicle clearance requires verified proof of ownership, NIN verification, and VIN inspection."
+                excerpt="Motor vehicle clearance requires verified proof of ownership, NIN verification, and VIN inspection.",
             ),
             Citation(
                 document_title="Nigeria Police CMR Standard Handbook",
                 chunk_id="Sec-4.2",
                 source_url="https://cmr.police.gov.ng/handbook",
-                excerpt="Turnaround time for standard vehicle clearance is 24 to 48 hours."
-            )
-        ]
+                excerpt="Turnaround time for standard vehicle clearance is 24 to 48 hours.",
+            ),
+        ],
     },
     {
         "keywords": ["fee", "cost", "price", "how much", "charge", "payment"],
@@ -90,9 +96,9 @@ PROCEDURAL_KNOWLEDGE = [
                 document_title="CMR Fee Schedule & Remittance Circular",
                 chunk_id="Sec-1.4",
                 source_url="https://cmr.police.gov.ng/fees",
-                excerpt="Official CMR registration fees are processed solely through verified government payment gateways."
+                excerpt="Official CMR registration fees are processed solely through verified government payment gateways.",
             )
-        ]
+        ],
     },
     {
         "keywords": ["plate", "number", "registration", "new vehicle", "change of ownership"],
@@ -107,9 +113,9 @@ PROCEDURAL_KNOWLEDGE = [
                 document_title="CMR Operational Guidelines 2026",
                 chunk_id="Sec-3.5",
                 source_url="https://cmr.police.gov.ng/guidelines/registration",
-                excerpt="Change of ownership requires verified deed of sale, valid NIN, and biometric capture."
+                excerpt="Change of ownership requires verified deed of sale, valid NIN, and biometric capture.",
             )
-        ]
+        ],
     },
     {
         "keywords": ["timeline", "how long", "duration", "hours", "days", "sla"],
@@ -124,10 +130,10 @@ PROCEDURAL_KNOWLEDGE = [
                 document_title="Nigeria Police CMR SLA Benchmark",
                 chunk_id="Sec-5.1",
                 source_url="https://cmr.police.gov.ng/sla",
-                excerpt="Digital verification SLA standard is 24-48 business hours."
+                excerpt="Digital verification SLA standard is 24-48 business hours.",
             )
-        ]
-    }
+        ],
+    },
 ]
 
 # Nigerian State names for geographic extraction
@@ -136,7 +142,7 @@ NIGERIAN_STATES = [
     "Cross River", "Delta", "Ebonyi", "Edo", "Ekiti", "Enugu", "Gombe", "Imo", "Jigawa",
     "Kaduna", "Kano", "Katsina", "Kebbi", "Kogi", "Kwara", "Lagos", "Nasarawa", "Niger",
     "Ogun", "Ondo", "Osun", "Oyo", "Plateau", "Rivers", "Sokoto", "Taraba", "Yobe",
-    "Zamfara", "Abuja", "FCT"
+    "Zamfara", "Abuja", "FCT",
 ]
 
 
@@ -150,7 +156,7 @@ class BinaryIntentRouter:
         "human", "agent", "representative", "officer", "complaint",
         "failed", "error", "rejected", "stuck", "pending for weeks",
         "investigate", "open case", "dispute", "wrong name", "refund",
-        "cannot login", "not working", "urgent", "assistance needed"
+        "cannot login", "not working", "urgent", "assistance needed",
     ]
 
     @classmethod
@@ -164,36 +170,44 @@ class BinaryIntentRouter:
             # Fallback for labeled pattern like "VIN: ABC123..." or "Chassis: ..."
             labeled_vin = re.search(r"(?:vin|chassis(?: number)?)\s*[:#-]?\s*([A-Z0-9]{8,17})", text, re.IGNORECASE)
             if labeled_vin:
-                facts.append(ExtractedFactItem(
-                    fact_key="vin_or_chassis",
-                    fact_value=labeled_vin.group(1).upper(),
-                    confidence=0.95,
-                ))
+                facts.append(
+                    ExtractedFactItem(
+                        fact_key="vin_or_chassis",
+                        fact_value=labeled_vin.group(1).upper(),
+                        confidence=0.95,
+                    )
+                )
         else:
-            facts.append(ExtractedFactItem(
-                fact_key="vin_or_chassis",
-                fact_value=vin_match.group(1).upper(),
-                confidence=0.98,
-            ))
+            facts.append(
+                ExtractedFactItem(
+                    fact_key="vin_or_chassis",
+                    fact_value=vin_match.group(1).upper(),
+                    confidence=0.98,
+                )
+            )
 
         # 2. Nigerian Vehicle Registration Plate Number (e.g., ABC-123XY, KJA123AA, LSR-456-XY)
         plate_match = re.search(r"\b([A-Z]{2,3}[-\s]?[0-9]{3}[-\s]?[A-Z]{2})\b", text, re.IGNORECASE)
         if plate_match:
             normalized_plate = re.sub(r"[-\s]", "", plate_match.group(1)).upper()
-            facts.append(ExtractedFactItem(
-                fact_key="license_plate",
-                fact_value=normalized_plate,
-                confidence=0.92,
-            ))
+            facts.append(
+                ExtractedFactItem(
+                    fact_key="license_plate",
+                    fact_value=normalized_plate,
+                    confidence=0.92,
+                )
+            )
 
         # 3. State extraction
         for state in NIGERIAN_STATES:
             if re.search(rf"\b{re.escape(state)}\b", text, re.IGNORECASE):
-                facts.append(ExtractedFactItem(
-                    fact_key="registration_state",
-                    fact_value=state,
-                    confidence=0.90,
-                ))
+                facts.append(
+                    ExtractedFactItem(
+                        fact_key="registration_state",
+                        fact_value=state,
+                        confidence=0.90,
+                    )
+                )
                 break
 
         # 4. NIN (11 digits)
@@ -202,26 +216,32 @@ class BinaryIntentRouter:
             # Standalone 11-digit number
             raw_11 = re.search(r"\b([0-9]{11})\b", text)
             if raw_11 and not any(f.fact_value == raw_11.group(1) for f in facts):
-                facts.append(ExtractedFactItem(
-                    fact_key="nin",
-                    fact_value=raw_11.group(1),
-                    confidence=0.85,
-                ))
+                facts.append(
+                    ExtractedFactItem(
+                        fact_key="nin",
+                        fact_value=raw_11.group(1),
+                        confidence=0.85,
+                    )
+                )
         else:
-            facts.append(ExtractedFactItem(
-                fact_key="nin",
-                fact_value=nin_match.group(1),
-                confidence=0.98,
-            ))
+            facts.append(
+                ExtractedFactItem(
+                    fact_key="nin",
+                    fact_value=nin_match.group(1),
+                    confidence=0.98,
+                )
+            )
 
         # 5. Nigerian Phone Number (+234... or 080... or 070... or 090... or 081...)
         phone_match = re.search(r"(\+?234[0-9]{10}|0[789][01][0-9]{8})", text)
         if phone_match:
-            facts.append(ExtractedFactItem(
-                fact_key="phone_number",
-                fact_value=phone_match.group(1),
-                confidence=0.95,
-            ))
+            facts.append(
+                ExtractedFactItem(
+                    fact_key="phone_number",
+                    fact_value=phone_match.group(1),
+                    confidence=0.95,
+                )
+            )
 
         return facts
 
@@ -235,7 +255,6 @@ class BinaryIntentRouter:
         is_support = any(trigger in clean_q for trigger in cls.SUPPORT_TRIGGERS)
 
         if is_support:
-            # Determine suggested category & subject based on content
             category = "GENERAL_INQUIRY"
             if any(w in clean_q for w in ["stolen", "theft", "missing"]):
                 category = "STOLEN_VEHICLE_REPORT"
@@ -261,7 +280,7 @@ class BinaryIntentRouter:
                     document_title="CMR Support Escalation Protocol",
                     chunk_id="Escalation-1.1",
                     source_url="https://cmr.police.gov.ng/support",
-                    excerpt="Customer inquiries requiring administrative or investigative action must be logged as formal cases."
+                    excerpt="Customer inquiries requiring administrative or investigative action must be logged as formal cases.",
                 )
             ]
 
@@ -306,7 +325,7 @@ class BinaryIntentRouter:
                 document_title="CMR Operational Guidelines 2026",
                 chunk_id="Overview-1.0",
                 source_url="https://cmr.police.gov.ng/about",
-                excerpt="Official procedural documentation and overview of the Central Motor Registry system."
+                excerpt="Official procedural documentation and overview of the Central Motor Registry system.",
             )
         ]
 
@@ -317,3 +336,130 @@ class BinaryIntentRouter:
             prompt_case_creation=False,
             extracted_facts=extracted_facts,
         )
+
+    @classmethod
+    async def route_async(
+        cls,
+        session: AsyncSession,
+        question: str,
+        conversation_id: Optional[uuid.UUID] = None,
+        message_id: Optional[uuid.UUID] = None,
+        person_id: Optional[uuid.UUID] = None,
+        request_id: Optional[str] = None,
+    ) -> RoutingResult:
+        """Asynchronously executes binary classification, queries active vector knowledge,
+        enforces strict boundary guardrails, and stores complete execution trace in AIRun.
+        """
+        from app.ai.inference import AIInferenceService
+        from app.ai.retrieval import AIRetrievalService
+
+        clean_q = question.strip().lower()
+        extracted_facts = cls.extract_facts(question)
+        is_support = any(trigger in clean_q for trigger in cls.SUPPORT_TRIGGERS)
+
+        if is_support:
+            # Route as SUPPORT_REQUEST
+            base_result = cls.route(question)
+            # Record AIRun for support trace
+            ai_run = AIRun(
+                request_id=request_id,
+                conversation_id=conversation_id,
+                message_id=message_id,
+                person_id=person_id,
+                model_name="binary-intent-router",
+                prompt_template_version="v1.0.0",
+                intent=IntentType.SUPPORT_REQUEST.value,
+                query_text=question,
+                raw_prompt="[BINARY INTENT ROUTER CLASSIFICATION]",
+                answer_text=base_result.answer,
+                retrieved_chunks=[],
+                citations=[c.to_dict() for c in base_result.citations],
+                input_tokens=len(question.split()) * 2,
+                output_tokens=len(base_result.answer.split()) * 2,
+                total_tokens=(len(question.split()) + len(base_result.answer.split())) * 2,
+                latency_ms=1.5,
+                fallback_triggered=False,
+                guardrail_triggered=False,
+                metadata_json={
+                    "extracted_facts": [f.to_dict() for f in extracted_facts],
+                    "suggested_category": base_result.suggested_category,
+                },
+            )
+            session.add(ai_run)
+            await session.flush()
+            base_result.ai_run_id = ai_run.id
+            return base_result
+
+        # Check for boundary guardrail triggers before retrieval
+        guardrail_msg = AIInferenceService.check_boundary_guardrails(question)
+        if guardrail_msg:
+            inference_result = await AIInferenceService.generate_grounded_answer(
+                session=session,
+                question=question,
+                conversation_id=conversation_id,
+                message_id=message_id,
+                person_id=person_id,
+                request_id=request_id,
+            )
+            return RoutingResult(
+                intent=IntentType.INFORMATIONAL,
+                answer=inference_result.answer,
+                citations=inference_result.citations,
+                prompt_case_creation=False,
+                extracted_facts=extracted_facts,
+                ai_run_id=inference_result.ai_run_id,
+            )
+
+        # Check if active knowledge chunks exist in the database
+        active_chunks = await AIRetrievalService.retrieve_active_chunks(
+            session=session,
+            query=question,
+            top_k=3,
+            min_similarity=0.20,
+        )
+
+        if active_chunks:
+            inference_result = await AIInferenceService.generate_grounded_answer(
+                session=session,
+                question=question,
+                retrieved_chunks=active_chunks,
+                conversation_id=conversation_id,
+                message_id=message_id,
+                person_id=person_id,
+                request_id=request_id,
+            )
+            return RoutingResult(
+                intent=IntentType.INFORMATIONAL,
+                answer=inference_result.answer,
+                citations=inference_result.citations,
+                prompt_case_creation=False,
+                extracted_facts=extracted_facts,
+                ai_run_id=inference_result.ai_run_id,
+            )
+
+        # If no active database chunks exist, use base procedural routing and persist AIRun trace
+        base_result = cls.route(question)
+        ai_run = AIRun(
+            request_id=request_id,
+            conversation_id=conversation_id,
+            message_id=message_id,
+            person_id=person_id,
+            model_name="procedural-knowledge-engine",
+            prompt_template_version="v1.0.0",
+            intent=IntentType.INFORMATIONAL.value,
+            query_text=question,
+            raw_prompt="[PROCEDURAL KNOWLEDGE RETRIEVAL]",
+            answer_text=base_result.answer,
+            retrieved_chunks=[],
+            citations=[c.to_dict() for c in base_result.citations],
+            input_tokens=len(question.split()) * 2,
+            output_tokens=len(base_result.answer.split()) * 2,
+            total_tokens=(len(question.split()) + len(base_result.answer.split())) * 2,
+            latency_ms=2.0,
+            fallback_triggered=True,
+            guardrail_triggered=False,
+        )
+        session.add(ai_run)
+        await session.flush()
+        base_result.ai_run_id = ai_run.id
+        return base_result

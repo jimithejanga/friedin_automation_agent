@@ -8,8 +8,10 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from app.ai.models import AIRun
 from app.ai.router import BinaryIntentRouter, IntentType
 from app.api.v1.customer.schemas import (
+    AIRunDetailResponse,
     CitationSchema,
     CreateCustomerCaseRequest,
     CustomerCaseDetailResponse,
@@ -82,10 +84,7 @@ async def ask_question(
     """Ingest customer inquiry, execute binary intent routing, extract facts,
     and persist interaction in a Conversation.
     """
-    # 1. Execute Binary Intent Routing & Fact Extraction
-    routing_result = BinaryIntentRouter.route(payload.question)
-
-    # 2. Resolve Person Identity
+    # 1. Resolve Person Identity
     person: Optional[Person] = None
     if current_user:
         person = await CaseService.get_person_by_id(session, current_user.id)
@@ -116,7 +115,7 @@ async def ask_question(
             phone_number=payload.phone_number or "+2340000000000",
         )
 
-    # 3. Find or Create Conversation
+    # 2. Find or Create Conversation
     conversation: Optional[Conversation] = None
     if payload.conversation_id:
         conversation = await CaseService.get_conversation_by_id(session, payload.conversation_id)
@@ -128,13 +127,24 @@ async def ask_question(
             channel=payload.channel,
         )
 
-    # 4. Record Customer Message
+    # 3. Record Customer Message
     cust_msg = await CaseService.add_message(
         session=session,
         conversation_id=conversation.id,
         content=payload.question,
         sender_type=MessageSenderType.CUSTOMER,
         sender_id=person.id,
+    )
+
+    # 4. Execute Binary Intent Routing, Active Knowledge Retrieval & AIRun Trace Logging
+    request_id = getattr(request.state, "request_id", None) if hasattr(request, "state") else None
+    routing_result = await BinaryIntentRouter.route_async(
+        session=session,
+        question=payload.question,
+        conversation_id=conversation.id,
+        message_id=cust_msg.id,
+        person_id=person.id,
+        request_id=request_id,
     )
 
     # 5. Persist Extracted Facts
@@ -179,6 +189,7 @@ async def ask_question(
             )
             for f in routing_result.extracted_facts
         ],
+        ai_run_id=routing_result.ai_run_id,
     )
 
 
@@ -472,3 +483,46 @@ async def reply_to_case(
         case_status=case.status,
         status_shifted_to_in_review=status_shifted,
     )
+
+
+@router.get(
+    "/ai-runs/{run_id}",
+    response_model=AIRunDetailResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Retrieve complete AI execution trace and verification record",
+)
+async def get_ai_run(
+    run_id: uuid.UUID,
+    session: AsyncSession = Depends(get_db_session),
+) -> AIRunDetailResponse:
+    """Retrieve full AI execution trace by run ID to verify model, prompt template,
+    retrieved chunks, citations, tokens, latency, and boundary guardrail metrics.
+    """
+    airun = await session.get(AIRun, run_id)
+    if not airun:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"AI execution trace run {run_id} not found",
+        )
+    return AIRunDetailResponse(
+        id=airun.id,
+        request_id=airun.request_id,
+        conversation_id=airun.conversation_id,
+        message_id=airun.message_id,
+        model_name=airun.model_name,
+        prompt_template_version=airun.prompt_template_version,
+        intent=airun.intent,
+        query_text=airun.query_text,
+        raw_prompt=airun.raw_prompt,
+        answer_text=airun.answer_text,
+        retrieved_chunks=airun.retrieved_chunks or [],
+        citations=airun.citations or [],
+        input_tokens=airun.input_tokens,
+        output_tokens=airun.output_tokens,
+        total_tokens=airun.total_tokens,
+        latency_ms=airun.latency_ms,
+        fallback_triggered=airun.fallback_triggered,
+        guardrail_triggered=airun.guardrail_triggered,
+        created_at=airun.created_at,
+    )
+

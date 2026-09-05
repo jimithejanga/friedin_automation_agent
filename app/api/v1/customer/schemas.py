@@ -39,6 +39,29 @@ class QuestionResponse(BaseModel):
     suggested_category: Optional[str] = None
     suggested_subject: Optional[str] = None
     extracted_facts: List[ExtractedFactSchema] = Field(default_factory=list)
+    ai_run_id: Optional[uuid.UUID] = None
+
+
+class AIRunDetailResponse(BaseModel):
+    id: uuid.UUID
+    request_id: Optional[str] = None
+    conversation_id: Optional[uuid.UUID] = None
+    message_id: Optional[uuid.UUID] = None
+    model_name: str
+    prompt_template_version: str
+    intent: str
+    query_text: str
+    raw_prompt: Optional[str] = None
+    answer_text: str
+    retrieved_chunks: List[Dict[str, Any]] = Field(default_factory=list)
+    citations: List[Dict[str, Any]] = Field(default_factory=list)
+    input_tokens: int
+    output_tokens: int
+    total_tokens: int
+    latency_ms: float
+    fallback_triggered: bool
+    guardrail_triggered: bool
+    created_at: datetime
 
 
 class CreateCustomerCaseRequest(BaseModel):

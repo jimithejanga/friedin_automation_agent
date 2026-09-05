@@ -10,6 +10,8 @@ from app.config import get_settings
 from app.platform.database import Base
 # Import all models to ensure they are registered with Base.metadata
 import app.cases.models  # noqa: F401
+import app.knowledge.models  # noqa: F401
+import app.ai.models  # noqa: F401
 
 config = context.config
 
