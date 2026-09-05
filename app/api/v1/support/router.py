@@ -1,9 +1,26 @@
+import hashlib
 import uuid
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from fastapi import APIRouter, Body, Depends, HTTPException, Query, Request, status
+from fastapi import APIRouter, Body, Depends, File, Form, HTTPException, Query, Request, UploadFile, status
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.api.v1.support.knowledge_schemas import (
+    DocumentDetailResponse,
+    DocumentListResponse,
+    DocumentSummarySchema,
+    DocumentUploadResponse,
+    DocumentVersionItemSchema,
+    DraftChunkItemSchema,
+    DraftPreviewResponse,
+    DraftRetrievalMatchSchema,
+    DraftRetrievalTestRequest,
+    DraftRetrievalTestResponse,
+    PublishVersionResponse,
+    RollbackVersionResponse,
+)
 
 from app.api.v1.support.schemas import (
     AssignCommandPayload,
@@ -36,12 +53,15 @@ from app.cases.commands import (
 )
 from app.cases.models import CasePriority, CaseStatus
 from app.cases.service import CaseService
+from app.config import get_settings
+from app.knowledge.service import KnowledgeService
 from app.platform.auth import AuthenticatedUser, Role, require_roles
 from app.platform.database import get_db_session
 
 router = APIRouter()
 
 SUPPORT_ROLES = (Role.SUPPORT, Role.SUPERVISOR, Role.ADMIN)
+ADMIN_SUPERVISOR_ROLES = (Role.SUPERVISOR, Role.ADMIN)
 
 
 @router.get(
@@ -416,4 +436,297 @@ async def add_internal_note(
         note=payload.note,
         decision=payload.decision,
         created_at=event.created_at,
+    )
+
+
+# -----------------------------------------------------------------------------
+# Knowledge Base & Vector Publishing Endpoints (Phase 4)
+# -----------------------------------------------------------------------------
+
+@router.post(
+    "/documents/upload",
+    response_model=DocumentUploadResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Upload procedural PDF document, extract text, generate chunks & embeddings into DRAFT",
+)
+async def upload_document_pdf(
+    file: UploadFile = File(..., description="Procedural PDF document"),
+    title: str = Form(..., description="Document title"),
+    category: str = Form("PROCEDURAL_GUIDE", description="Document category"),
+    description: Optional[str] = Form(None, description="Document description"),
+    source_url: Optional[str] = Form(None, description="Official source reference URL"),
+    publish_immediately: bool = Form(False, description="Whether to atomically publish immediately after ingestion"),
+    request: Request = None,
+    session: AsyncSession = Depends(get_db_session),
+    current_user: AuthenticatedUser = Depends(require_roles(*SUPPORT_ROLES)),
+) -> DocumentUploadResponse:
+    """Upload a raw PDF document, compute content hash, create a DRAFT version,
+    extract text page-by-page, generate semantic chunks with vector embeddings,
+    and optionally publish atomically.
+    """
+    request_id = getattr(request.state, "request_id", None) if request else None
+
+    # Read PDF content & compute SHA-256 hash
+    content = await file.read()
+    if not content:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Uploaded file is empty.",
+        )
+    content_hash = hashlib.sha256(content).hexdigest()
+
+    # 1. Create or fetch Document
+    doc = await KnowledgeService.create_document(
+        session=session,
+        title=title,
+        category=category,
+        description=description,
+        source_url=source_url,
+        actor_id=current_user.id,
+        actor_role=current_user.role.value,
+        request_id=request_id,
+    )
+
+    # 2. Save file to storage
+    settings = get_settings()
+    storage_dir = Path(settings.STORAGE_LOCAL_DIR) / str(doc.id)
+    storage_dir.mkdir(parents=True, exist_ok=True)
+
+    # 3. Create DRAFT DocumentVersion
+    draft_ver = await KnowledgeService.create_draft_version(
+        session=session,
+        document_id=doc.id,
+        content_hash=content_hash,
+    )
+
+    saved_path = storage_dir / f"v{draft_ver.version_number}.pdf"
+    saved_path.write_bytes(content)
+    draft_ver.file_path = str(saved_path)
+    await session.flush()
+
+    # 4. Ingest PDF: parse, chunk, embed
+    try:
+        draft_ver = await KnowledgeService.ingest_version_pdf(
+            session=session,
+            version_id=draft_ver.id,
+            file_source=content,
+            actor_id=current_user.id,
+            request_id=request_id,
+        )
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=f"PDF parsing or chunk extraction failed: {exc}",
+        )
+
+    # 5. Atomic publish if requested
+    is_published = False
+    if publish_immediately:
+        if current_user.role not in ADMIN_SUPERVISOR_ROLES:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Immediate publishing requires SUPERVISOR or ADMIN role.",
+            )
+        doc, draft_ver, _ = await KnowledgeService.publish_version(
+            session=session,
+            document_id=doc.id,
+            version_id=draft_ver.id,
+            actor_id=current_user.id,
+            actor_role=current_user.role.value,
+            request_id=request_id,
+        )
+        is_published = True
+
+    meta = draft_ver.metadata_json or {}
+    total_chunks = meta.get("total_chunks", 0)
+    total_tokens = meta.get("total_tokens", 0)
+
+    return DocumentUploadResponse(
+        document_id=doc.id,
+        title=doc.title,
+        version_id=draft_ver.id,
+        version_number=draft_ver.version_number,
+        status=getattr(draft_ver.status, "value", str(draft_ver.status)),
+        content_hash=content_hash,
+        total_chunks=total_chunks,
+        total_tokens=total_tokens,
+        is_published=is_published,
+        message=(
+            f"Document version {draft_ver.version_number} uploaded and atomically published."
+            if is_published
+            else f"Document version {draft_ver.version_number} ingested in DRAFT status. Ready for review."
+        ),
+    )
+
+
+@router.get(
+    "/documents",
+    response_model=DocumentListResponse,
+    status_code=status.HTTP_200_OK,
+    summary="List all procedural knowledge documents with active and draft version details",
+)
+async def list_documents(
+    category: Optional[str] = Query(None, description="Filter by document category"),
+    session: AsyncSession = Depends(get_db_session),
+    current_user: AuthenticatedUser = Depends(require_roles(*SUPPORT_ROLES)),
+) -> DocumentListResponse:
+    """Retrieve catalog of procedural documents with active version and pending draft counts."""
+    docs = await KnowledgeService.list_documents(session, category=category)
+    summaries = [DocumentSummarySchema(**d) for d in docs]
+    return DocumentListResponse(total=len(summaries), documents=summaries)
+
+
+@router.get(
+    "/documents/{document_id}",
+    response_model=DocumentDetailResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Retrieve document metadata and all historic versions",
+)
+async def get_document_detail(
+    document_id: uuid.UUID,
+    session: AsyncSession = Depends(get_db_session),
+    current_user: AuthenticatedUser = Depends(require_roles(*SUPPORT_ROLES)),
+) -> DocumentDetailResponse:
+    """Retrieve full detail for a document including versions, statuses, hashes, and dates."""
+    try:
+        detail = await KnowledgeService.get_document_detail(session, document_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
+    return DocumentDetailResponse(**detail)
+
+
+@router.get(
+    "/documents/{document_id}/versions/{version_id}/preview",
+    response_model=DraftPreviewResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Preview extracted chunks, token counts, and section codes for a draft version",
+)
+async def preview_draft_version(
+    document_id: uuid.UUID,
+    version_id: uuid.UUID,
+    session: AsyncSession = Depends(get_db_session),
+    current_user: AuthenticatedUser = Depends(require_roles(*SUPPORT_ROLES)),
+) -> DraftPreviewResponse:
+    """Preview semantic chunks, section codes, and token counts of a draft version prior to activation."""
+    try:
+        preview_data = await KnowledgeService.get_draft_preview(session, version_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
+    return DraftPreviewResponse(**preview_data)
+
+
+@router.post(
+    "/documents/{document_id}/versions/{version_id}/test-query",
+    response_model=DraftRetrievalTestResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Test vector retrieval relevance against draft chunks before publishing",
+)
+async def test_draft_query(
+    document_id: uuid.UUID,
+    version_id: uuid.UUID,
+    payload: DraftRetrievalTestRequest,
+    session: AsyncSession = Depends(get_db_session),
+    current_user: AuthenticatedUser = Depends(require_roles(*SUPPORT_ROLES)),
+) -> DraftRetrievalTestResponse:
+    """Execute isolated vector similarity search against chunks of a draft version."""
+    matches_raw = await KnowledgeService.test_draft_retrieval(
+        session=session,
+        version_id=version_id,
+        query_text=payload.query,
+        top_k=payload.top_k,
+    )
+    matches = [DraftRetrievalMatchSchema(**m) for m in matches_raw]
+    return DraftRetrievalTestResponse(
+        version_id=version_id,
+        query=payload.query,
+        matches=matches,
+    )
+
+
+@router.post(
+    "/documents/{document_id}/versions/{version_id}/publish",
+    response_model=PublishVersionResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Atomically publish a DRAFT version and retire previous ACTIVE version",
+)
+async def publish_draft_version(
+    document_id: uuid.UUID,
+    version_id: uuid.UUID,
+    request: Request = None,
+    session: AsyncSession = Depends(get_db_session),
+    current_user: AuthenticatedUser = Depends(require_roles(*ADMIN_SUPERVISOR_ROLES)),
+) -> PublishVersionResponse:
+    """PUBLISHING GUARANTEE:
+    Atomically retires the current ACTIVE version and activates the target DRAFT version
+    in a single database transaction. Customers immediately retrieve from the new version.
+    """
+    request_id = getattr(request.state, "request_id", None) if request else None
+    try:
+        doc, published_ver, retired_ver = await KnowledgeService.publish_version(
+            session=session,
+            document_id=document_id,
+            version_id=version_id,
+            actor_id=current_user.id,
+            actor_role=current_user.role.value,
+            request_id=request_id,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc))
+
+    return PublishVersionResponse(
+        document_id=doc.id,
+        document_title=doc.title,
+        published_version_id=published_ver.id,
+        published_version_number=published_ver.version_number,
+        status=getattr(published_ver.status, "value", str(published_ver.status)),
+        retired_version_number=retired_ver.version_number if retired_ver else None,
+        published_at=published_ver.published_at.isoformat() if published_ver.published_at else "",
+        message=(
+            f"Version {published_ver.version_number} is now ACTIVE. "
+            + (f"Version {retired_ver.version_number} has been RETIRED." if retired_ver else "First version activated.")
+        ),
+    )
+
+
+@router.post(
+    "/documents/{document_id}/rollback",
+    response_model=RollbackVersionResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Atomically roll back current ACTIVE version to a previous RETIRED version",
+)
+async def rollback_document_version(
+    document_id: uuid.UUID,
+    target_version_id: Optional[uuid.UUID] = Query(None, description="Optional specific version ID to restore"),
+    request: Request = None,
+    session: AsyncSession = Depends(get_db_session),
+    current_user: AuthenticatedUser = Depends(require_roles(*ADMIN_SUPERVISOR_ROLES)),
+) -> RollbackVersionResponse:
+    """ATOMIC ROLLBACK:
+    Atomically retires the active version and restores a previously RETIRED version.
+    Customer queries immediately fail back to the restored version.
+    """
+    request_id = getattr(request.state, "request_id", None) if request else None
+    try:
+        doc, restored_ver, retired_ver = await KnowledgeService.rollback_version(
+            session=session,
+            document_id=document_id,
+            target_version_id=target_version_id,
+            actor_id=current_user.id,
+            actor_role=current_user.role.value,
+            request_id=request_id,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc))
+
+    return RollbackVersionResponse(
+        document_id=doc.id,
+        document_title=doc.title,
+        restored_version_id=restored_ver.id,
+        restored_version_number=restored_ver.version_number,
+        retired_version_number=retired_ver.version_number,
+        status=getattr(restored_ver.status, "value", str(restored_ver.status)),
+        message=(
+            f"Rollback successful: Version {restored_ver.version_number} restored to ACTIVE. "
+            f"Version {retired_ver.version_number} RETIRED."
+        ),
     )

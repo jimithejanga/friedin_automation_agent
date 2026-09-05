@@ -34,6 +34,16 @@ High-traffic, case-centered, Python-first automation product for the Central Mot
   - `POST /api/v1/support/cases/{id}/commands/{cmd}`: Execution of named staff lifecycle commands.
   - `POST /api/v1/support/cases/{id}/notes`: Internal confidential staff notes and decisions.
 
+- [x] **Phase 4: Knowledge Base & Vector Publishing (Ingestion Worker & Pipeline)**
+  - `worker/tasks/ingestion.py`: Async PDF parser (`pypdf`), semantic chunking with section code detection (`Sec-X.Y`), and 1536-dimensional vector embedding generation.
+  - `app/knowledge/service.py`: Knowledge service enforcing the Publishing Guarantee with atomic version activation (`DRAFT` ➔ `ACTIVE`, retiring older versions in a single ACID transaction) and rollback.
+  - `POST /api/v1/support/documents/upload`: Multipart PDF upload, SHA-256 content hashing, and automatic background chunking.
+  - `GET /api/v1/support/documents`: Document catalog with active versions and pending draft status.
+  - `GET /api/v1/support/documents/{id}/versions/{version_id}/preview`: Chunk preview and token metrics before activation.
+  - `POST /api/v1/support/documents/{id}/versions/{version_id}/test-query`: Vector similarity test against draft chunks.
+  - `POST /api/v1/support/documents/{id}/versions/{version_id}/publish`: Atomic version activation.
+  - `POST /api/v1/support/documents/{id}/rollback`: Atomic rollback to previously active versions.
+
 - [x] **Phase 5: AI Grounding, Routing & Traceability**
   - `app/ai/router.py`: Binary router classifying `INFORMATIONAL` vs `SUPPORT_REQUEST` with automated fact extraction.
   - `app/ai/retrieval.py`: Vector cosine similarity search querying **ONLY** chunks associated with `ACTIVE` document versions.
@@ -49,9 +59,6 @@ High-traffic, case-centered, Python-first automation product for the Central Mot
   - `GET /api/v1/ops/requests/{request_id}`: Phase 6 Exit Check failure diagnosis reconstructing events, AI execution traces, and errors by Request ID.
   - `GET /api/v1/ops/runbooks`: Incident diagnosis and recovery runbooks for error spikes, AI latency, ingestion backlog, and SLA breaches.
   - `GET /health/ready`: Database connectivity readiness probe.
-
-- [ ] **Phase 4: Knowledge Base & Vector Publishing (Ingestion Worker & Pipeline)**
-  - Background worker PDF parser (`pypdf`), chunking pipeline, and atomic draft-to-active version promotion.
 
 - [x] **Phase 7: Launch, Verification & Testing**
   - Database seeder (`scripts/seed_db.py`): Seeds default admin/support accounts, active procedural documents with embeddings, and realistic sample cases.
@@ -71,13 +78,13 @@ app/
       support/       # Staff queue filtering, command execution, and internal notes
       ops/           # Telemetry dashboard, request tracing, and incident runbooks
   cases/             # Durable case domain, entities, commands, and strict state machine
-  knowledge/         # Documents, versioning (DRAFT, ACTIVE, RETIRED), and Chunk models
+  knowledge/         # Documents, versioning (DRAFT, ACTIVE, RETIRED), Chunk models, and KnowledgeService
   ai/                # Intent routing, active vector retrieval, inference, guardrails, AIRun
-  platform/          # Async SQLAlchemy engine, JWT/RBAC auth, audit logging, telemetry, vector type
+  platform/          # Async SQLAlchemy engine, JWT/RBAC auth, audit logging, telemetry, vector & embedding utilities
 scripts/             # Database seeder (seed_db.py) and disaster recovery drill (disaster_recovery_drill.py)
 worker/              # Background worker for document ingestion and async tasks
 migrations/          # Versioned Alembic migrations
-tests/               # Unit, grounding, surface, and end-to-end integration test suites
+tests/               # Unit, grounding, surface, knowledge publishing, and end-to-end integration test suites
 ```
 
 ---
@@ -91,7 +98,7 @@ source .venv/bin/activate
 pip install -e ".[dev]"
 ```
 
-### Run Tests (100% Passing - 41/41 tests)
+### Run Tests (100% Passing - 48/48 tests across all Phases 0 - 7)
 ```bash
 pytest -v
 ```

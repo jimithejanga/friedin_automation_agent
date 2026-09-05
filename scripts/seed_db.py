@@ -14,7 +14,7 @@ if str(PROJECT_ROOT) not in sys.path:
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.ai.retrieval import generate_deterministic_mock_embedding
+from app.platform.embeddings import generate_deterministic_mock_embedding
 from app.cases.models import Case, CaseEvent, CasePriority, CaseStatus, Conversation, ExtractedFact, Message, MessageSenderType, Person
 from app.knowledge.models import Chunk, Document, DocumentVersion, DocumentVersionStatus
 from app.platform.audit import AuditLogger

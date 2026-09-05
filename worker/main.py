@@ -1,10 +1,17 @@
 import asyncio
+from pathlib import Path
 import signal
 import sys
 import structlog
 
+# Ensure project root is in sys.path
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
 from app.config import get_settings
 from app.platform.telemetry import setup_telemetry
+from worker.tasks.ingestion import ingest_document_version_task
 
 
 logger = structlog.get_logger("cmr.worker")
