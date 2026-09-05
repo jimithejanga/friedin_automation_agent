@@ -41,11 +41,17 @@ High-traffic, case-centered, Python-first automation product for the Central Mot
   - `app/ai/models.py`: `AIRun` entity recording model parameters, prompt version, retrieved chunks, citations, tokens, latency, and full reconstruction trace.
   - `GET /api/v1/customer/ai-runs/{run_id}`: Trace inspection endpoint for auditing every AI decision.
 
+- [x] **Phase 6: Operations Dashboard & Reliability**
+  - Observability dashboard across 4 pillars: Service Health, Customer Flow, AI Quality, and Knowledge Base.
+  - Durable append-only `audit_events` table with guaranteed automatic PII masking (BVN, NIN, card numbers, passwords).
+  - `GET /api/v1/ops/dashboard`: Aggregated metrics and SLO status tracking.
+  - `GET /api/v1/ops/audit-logs`: Searchable audit logs filtered by `request_id`, `actor_role`, `action`, and date ranges.
+  - `GET /api/v1/ops/requests/{request_id}`: Phase 6 Exit Check failure diagnosis reconstructing events, AI execution traces, and errors by Request ID.
+  - `GET /api/v1/ops/runbooks`: Incident diagnosis and recovery runbooks for error spikes, AI latency, ingestion backlog, and SLA breaches.
+  - `GET /health/ready`: Database connectivity readiness probe.
+
 - [ ] **Phase 4: Knowledge Base & Vector Publishing (Ingestion Worker & Pipeline)**
   - Background worker PDF parser (`pypdf`), chunking pipeline, and atomic draft-to-active version promotion.
-
-- [ ] **Phase 6: Operations Dashboard & Reliability**
-  - Observability dashboard, SLO tracking (availability, p95 latency, answer time, ingestion), and incident diagnosis runbooks.
 
 - [ ] **Phase 7: Launch, Verification & Testing**
   - Database seeder (`scripts/seed_db.py`), 2x load testing, and disaster recovery restore drill.

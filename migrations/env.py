@@ -12,6 +12,7 @@ from app.platform.database import Base
 import app.cases.models  # noqa: F401
 import app.knowledge.models  # noqa: F401
 import app.ai.models  # noqa: F401
+import app.platform.audit  # noqa: F401
 
 config = context.config
 
