@@ -4,9 +4,9 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 from fastapi import HTTPException, status
-from sqlalchemy import select
+from sqlalchemy import and_, desc, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import joinedload, selectinload
 
 from app.cases.commands import (
     AssignCommand,
@@ -180,6 +180,7 @@ class CaseService:
 
         # Write immutable timeline event
         event = CaseEvent(
+            case=case,
             case_id=case.id,
             event_type="STATE_TRANSITION",
             from_status=from_status.value,
@@ -411,4 +412,200 @@ class CaseService:
                 "requested_at": case.updated_at.isoformat() if case.updated_at else None,
             }
         ]
+
+    @staticmethod
+    async def search_people(
+        session: AsyncSession,
+        query: Optional[str] = None,
+        phone_number: Optional[str] = None,
+        email: Optional[str] = None,
+        nin_or_bvn: Optional[str] = None,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> tuple[int, List[Person]]:
+        """Search people cross-case by name, phone, email, or identity identifier, loading associated cases."""
+        stmt = select(Person).options(selectinload(Person.cases))
+        filters = []
+        if query:
+            q_clean = f"%{query.strip()}%"
+            filters.append(
+                or_(
+                    Person.full_name.ilike(q_clean),
+                    Person.phone_number.ilike(q_clean),
+                    Person.email.ilike(q_clean),
+                    Person.nin_or_bvn.ilike(q_clean),
+                )
+            )
+        if phone_number:
+            filters.append(Person.phone_number.ilike(f"%{phone_number.strip()}%"))
+        if email:
+            filters.append(Person.email.ilike(f"%{email.strip()}%"))
+        if nin_or_bvn:
+            filters.append(Person.nin_or_bvn.ilike(f"%{nin_or_bvn.strip()}%"))
+
+        if filters:
+            stmt = stmt.where(and_(*filters))
+
+        count_stmt = select(func.count(Person.id))
+        if filters:
+            count_stmt = count_stmt.where(and_(*filters))
+        total_res = await session.execute(count_stmt)
+        total = total_res.scalar() or 0
+
+        stmt = stmt.order_by(desc(Person.created_at)).limit(limit).offset(offset)
+        result = await session.execute(stmt)
+        people = list(result.scalars().unique().all())
+        return total, people
+
+    @staticmethod
+    async def filter_cases(
+        session: AsyncSession,
+        status: Optional[CaseStatus] = None,
+        priority: Optional[CasePriority] = None,
+        category: Optional[str] = None,
+        assignee_id: Optional[uuid.UUID] = None,
+        unassigned_only: bool = False,
+        sla_breached: Optional[bool] = None,
+        search: Optional[str] = None,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> tuple[int, List[Case]]:
+        """Filter case queues by status, priority, category, assignee, and SLA deadline."""
+        now = datetime.now(timezone.utc)
+        stmt = (
+            select(Case)
+            .options(
+                joinedload(Case.person),
+                selectinload(Case.events),
+            )
+        )
+        filters = []
+        if status:
+            stmt = stmt.where(Case.status == status)
+            filters.append(Case.status == status)
+        if priority:
+            stmt = stmt.where(Case.priority == priority)
+            filters.append(Case.priority == priority)
+        if category:
+            stmt = stmt.where(Case.category.ilike(f"%{category.strip()}%"))
+            filters.append(Case.category.ilike(f"%{category.strip()}%"))
+        if unassigned_only:
+            stmt = stmt.where(Case.assigned_to.is_(None))
+            filters.append(Case.assigned_to.is_(None))
+        elif assignee_id:
+            stmt = stmt.where(Case.assigned_to == assignee_id)
+            filters.append(Case.assigned_to == assignee_id)
+
+        if sla_breached is True:
+            sla_cond = and_(
+                Case.sla_deadline.isnot(None),
+                Case.sla_deadline < now,
+                Case.status.notin_([CaseStatus.RESOLVED, CaseStatus.CLOSED]),
+            )
+            stmt = stmt.where(sla_cond)
+            filters.append(sla_cond)
+        elif sla_breached is False:
+            sla_cond = or_(
+                Case.sla_deadline.is_(None),
+                Case.sla_deadline >= now,
+                Case.status.in_([CaseStatus.RESOLVED, CaseStatus.CLOSED]),
+            )
+            stmt = stmt.where(sla_cond)
+            filters.append(sla_cond)
+
+        if search:
+            s_term = f"%{search.strip()}%"
+            search_cond = or_(
+                Case.case_number.ilike(s_term),
+                Case.subject.ilike(s_term),
+                Case.description.ilike(s_term),
+            )
+            stmt = stmt.where(search_cond)
+            filters.append(search_cond)
+
+        count_stmt = select(func.count(Case.id))
+        if filters:
+            count_stmt = count_stmt.where(and_(*filters))
+        total_res = await session.execute(count_stmt)
+        total = total_res.scalar() or 0
+
+        stmt = stmt.order_by(desc(Case.created_at)).limit(limit).offset(offset)
+        result = await session.execute(stmt)
+        cases = list(result.scalars().unique().all())
+        return total, cases
+
+    @staticmethod
+    async def record_internal_note(
+        session: AsyncSession,
+        case_id: uuid.UUID,
+        note: str,
+        decision: Optional[str] = None,
+        reason: Optional[str] = None,
+        actor_id: Optional[uuid.UUID] = None,
+        actor_role: str = "support",
+        request_id: Optional[str] = None,
+    ) -> tuple[Case, CaseEvent]:
+        """Record an internal staff note and decision on a case (hidden from customer views)."""
+        case = await CaseService.get_case_by_id(session, case_id, include_events=True)
+        if not case:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Case '{case_id}' not found.",
+            )
+
+        payload = {"note": note}
+        if decision:
+            payload["decision"] = decision
+
+        event = CaseEvent(
+            case=case,
+            case_id=case.id,
+            event_type="INTERNAL_NOTE",
+            from_status=case.status.value,
+            to_status=case.status.value,
+            command_name="InternalNote",
+            actor_id=actor_id,
+            actor_role=actor_role,
+            reason=reason or "Internal staff note recorded",
+            payload=payload,
+        )
+        session.add(event)
+        await session.flush()
+
+        AuditLogger.log(
+            action="CASE_INTERNAL_NOTE",
+            entity_type="CASE",
+            entity_id=str(case.id),
+            actor_id=str(actor_id) if actor_id else None,
+            actor_role=actor_role,
+            request_id=request_id,
+            details={"decision": decision, "note_length": len(note)},
+        )
+        return case, event
+
+    @staticmethod
+    async def get_case_for_support(
+        session: AsyncSession,
+        case_id: uuid.UUID,
+    ) -> Case:
+        """Fetch complete case history for support staff, including internal notes and staff decisions."""
+        query = (
+            select(Case)
+            .where(Case.id == case_id)
+            .options(
+                joinedload(Case.person),
+                selectinload(Case.events),
+                selectinload(Case.extracted_facts),
+                selectinload(Case.conversations).selectinload(Conversation.messages),
+            )
+        )
+        result = await session.execute(query)
+        case = result.scalar_one_or_none()
+        if not case:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Case '{case_id}' not found.",
+            )
+        return case
+
 

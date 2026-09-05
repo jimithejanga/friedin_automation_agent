@@ -7,6 +7,7 @@ from pydantic import BaseModel
 import structlog
 
 from app.api.v1.customer.router import router as customer_router
+from app.api.v1.support.router import router as support_router
 from app.config import get_settings
 from app.platform.telemetry import TelemetryMiddleware, setup_telemetry
 
@@ -72,6 +73,13 @@ def create_app() -> FastAPI:
         customer_router,
         prefix="/api/v1/customer",
         tags=["Customer Surface"],
+    )
+
+    # Support Console Surface Router
+    app.include_router(
+        support_router,
+        prefix="/api/v1/support",
+        tags=["Support Console Surface"],
     )
 
     return app
