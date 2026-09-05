@@ -53,8 +53,11 @@ High-traffic, case-centered, Python-first automation product for the Central Mot
 - [ ] **Phase 4: Knowledge Base & Vector Publishing (Ingestion Worker & Pipeline)**
   - Background worker PDF parser (`pypdf`), chunking pipeline, and atomic draft-to-active version promotion.
 
-- [ ] **Phase 7: Launch, Verification & Testing**
-  - Database seeder (`scripts/seed_db.py`), 2x load testing, and disaster recovery restore drill.
+- [x] **Phase 7: Launch, Verification & Testing**
+  - Database seeder (`scripts/seed_db.py`): Seeds default admin/support accounts, active procedural documents with embeddings, and realistic sample cases.
+  - End-to-end integration suite (`tests/integration/test_e2e_lifecycle.py`): Full Question -> Case Created -> Triaged -> In Review -> Resolved -> Closed flow.
+  - Simulated 2x peak load SLO testing (`tests/integration/test_load_slo.py`): Validates 0% error rate, non-AI p95 < 500ms, and AI answer p95 < 12s.
+  - Disaster Recovery drill (`scripts/disaster_recovery_drill.py`): Point-in-time state snapshot/restore continuity and container rollback audit.
 
 ---
 
@@ -66,13 +69,15 @@ app/
     v1/
       customer/      # Customer inquiry, case opening, and AI trace routes
       support/       # Staff queue filtering, command execution, and internal notes
+      ops/           # Telemetry dashboard, request tracing, and incident runbooks
   cases/             # Durable case domain, entities, commands, and strict state machine
   knowledge/         # Documents, versioning (DRAFT, ACTIVE, RETIRED), and Chunk models
   ai/                # Intent routing, active vector retrieval, inference, guardrails, AIRun
   platform/          # Async SQLAlchemy engine, JWT/RBAC auth, audit logging, telemetry, vector type
+scripts/             # Database seeder (seed_db.py) and disaster recovery drill (disaster_recovery_drill.py)
 worker/              # Background worker for document ingestion and async tasks
 migrations/          # Versioned Alembic migrations
-tests/               # Unit, integration, grounding, and surface test suites
+tests/               # Unit, grounding, surface, and end-to-end integration test suites
 ```
 
 ---
@@ -86,9 +91,26 @@ source .venv/bin/activate
 pip install -e ".[dev]"
 ```
 
-### Run Tests
+### Run Tests (100% Passing - 41/41 tests)
 ```bash
 pytest -v
+```
+
+### Run E2E & Load SLO Integration Tests
+```bash
+pytest tests/integration/ -v
+```
+
+### Seed Database
+```bash
+python3 scripts/seed_db.py
+# Or with specific database target:
+python3 scripts/seed_db.py --db postgresql+asyncpg://postgres:postgres@localhost:5432/friedin_cmr
+```
+
+### Execute Disaster Recovery Drill
+```bash
+python3 scripts/disaster_recovery_drill.py
 ```
 
 ### Run Database Migrations
