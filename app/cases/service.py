@@ -382,6 +382,38 @@ class CaseService:
 
         return case
 
+    @staticmethod
+    async def get_case_for_customer_by_number(
+        session: AsyncSession,
+        case_number: str,
+        person_id: Optional[uuid.UUID] = None,
+    ) -> Case:
+        """Fetch case by human-readable case_number, enforcing customer isolation."""
+        query = (
+            select(Case)
+            .where(Case.case_number == case_number)
+            .options(
+                selectinload(Case.events),
+                selectinload(Case.extracted_facts),
+                selectinload(Case.conversations).selectinload(Conversation.messages),
+            )
+        )
+        result = await session.execute(query)
+        case = result.scalar_one_or_none()
+        if not case:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Case with number '{case_number}' not found.",
+            )
+
+        if person_id is not None and case.person_id != person_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Access denied: You do not have permission to access this case.",
+            )
+
+        return case
+
 
     @staticmethod
     def get_case_requested_actions(case: Case) -> List[Dict[str, Any]]:

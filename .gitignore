@@ -26,11 +26,14 @@ share/python-wheels/
 *.egg
 MANIFEST
 
-# Virtual Environments
+# Virtual Environments & Dependencies
 .venv/
 venv/
 ENV/
 env/
+node_modules/
+.next/
+
 
 # Environment Variables & Secrets
 .env
@@ -58,3 +61,8 @@ htmlcov/
 
 # Local Storage
 data/storage/
+
+# Logs
+*.log
+logs/
+

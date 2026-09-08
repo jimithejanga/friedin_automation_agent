@@ -311,31 +311,13 @@ async def open_case(
     )
 
 
-@router.get(
-    "/cases/{case_id}",
-    response_model=CustomerCaseDetailResponse,
-    status_code=status.HTTP_200_OK,
-    summary="Retrieve case timeline, messages, requested actions, and attachments",
-)
-async def get_case_detail(
-    case_id: uuid.UUID,
-    session: AsyncSession = Depends(get_db_session),
-    current_user: Optional[AuthenticatedUser] = Depends(get_optional_user),
-) -> CustomerCaseDetailResponse:
-    """Retrieve full customer view of a case: chronological timeline,
-    public messages, attachments, and pending requested actions.
-    """
-    person_id = current_user.id if (current_user and current_user.role == Role.CUSTOMER) else None
-    case = await CaseService.get_case_for_customer(session, case_id=case_id, person_id=person_id)
-
-    # Build requested actions (if in WAITING status)
+def _build_case_detail_response(case: Case) -> CustomerCaseDetailResponse:
+    """Helper to convert a Case domain entity into a CustomerCaseDetailResponse."""
     requested_actions_raw = CaseService.get_case_requested_actions(case)
     requested_actions = [RequestedActionSchema(**ra) for ra in requested_actions_raw]
 
-    # Gather chronological timeline items
     timeline_items: List[TimelineItemSchema] = []
     for event in case.events:
-        # Hide internal-only notes from customer
         if event.event_type.startswith("INTERNAL_"):
             continue
 
@@ -357,10 +339,8 @@ async def get_case_detail(
             )
         )
 
-    # Gather messages & attachments
     all_messages: List[MessageSchema] = []
     attachments: List[Any] = []
-
     for conv in case.conversations:
         for msg in conv.messages:
             all_messages.append(
@@ -377,10 +357,8 @@ async def get_case_detail(
             if msg.attachments:
                 attachments.extend(msg.attachments)
 
-    # Sort messages chronologically
     all_messages.sort(key=lambda m: m.created_at)
 
-    # Extracted facts
     facts_list = [
         ExtractedFactSchema(
             fact_key=fact.fact_key,
@@ -409,6 +387,44 @@ async def get_case_detail(
         attachments=attachments,
         extracted_facts=facts_list,
     )
+
+
+@router.get(
+    "/cases/lookup",
+    response_model=CustomerCaseDetailResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Lookup case by human-readable case number",
+)
+async def lookup_case_by_number(
+    case_number: str,
+    session: AsyncSession = Depends(get_db_session),
+    current_user: Optional[AuthenticatedUser] = Depends(get_optional_user),
+) -> CustomerCaseDetailResponse:
+    """Retrieve full customer view of a case by case_number (e.g. CMR-20260905-XXXX)."""
+    person_id = current_user.id if (current_user and current_user.role == Role.CUSTOMER) else None
+    case = await CaseService.get_case_for_customer_by_number(
+        session, case_number=case_number.strip(), person_id=person_id
+    )
+    return _build_case_detail_response(case)
+
+
+@router.get(
+    "/cases/{case_id}",
+    response_model=CustomerCaseDetailResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Retrieve case timeline, messages, requested actions, and attachments",
+)
+async def get_case_detail(
+    case_id: uuid.UUID,
+    session: AsyncSession = Depends(get_db_session),
+    current_user: Optional[AuthenticatedUser] = Depends(get_optional_user),
+) -> CustomerCaseDetailResponse:
+    """Retrieve full customer view of a case: chronological timeline,
+    public messages, attachments, and pending requested actions.
+    """
+    person_id = current_user.id if (current_user and current_user.role == Role.CUSTOMER) else None
+    case = await CaseService.get_case_for_customer(session, case_id=case_id, person_id=person_id)
+    return _build_case_detail_response(case)
 
 
 @router.post(

@@ -341,3 +341,40 @@ async def test_customer_isolation_and_security(client: AsyncClient, async_db):
         json={"content": "Malicious attempt to reply to Customer A's case"},
     )
     assert res_b_reply.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_customer_lookup_case_by_number(client: AsyncClient, async_db):
+    """Customer can look up a case by human-readable case_number."""
+    session, _ = async_db
+
+    person = await CaseService.create_person(
+        session=session,
+        full_name="Lookup Test Person",
+        phone_number="+2348099887766",
+        email="lookup@example.ng",
+    )
+    case = await CaseService.create_case(
+        session=session,
+        person_id=person.id,
+        subject="Plate verification inquiry",
+        description="Verify status of customized plate",
+        category="PLATE_VERIFICATION",
+        priority=CasePriority.NORMAL,
+        actor_id=person.id,
+        actor_role="customer",
+    )
+    await session.commit()
+
+    # Successful lookup by case number
+    res = await client.get(f"/api/v1/customer/cases/lookup?case_number={case.case_number}")
+    assert res.status_code == 200
+    data = res.json()
+    assert data["case_number"] == case.case_number
+    assert data["id"] == str(case.id)
+    assert data["subject"] == "Plate verification inquiry"
+
+    # Nonexistent case number returns 404
+    res_404 = await client.get("/api/v1/customer/cases/lookup?case_number=CMR-NONEXISTENT-999")
+    assert res_404.status_code == 404
+
