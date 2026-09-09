@@ -1,3 +1,4 @@
+import asyncio
 import re
 import time
 import uuid
@@ -10,6 +11,9 @@ from app.ai.models import AIRun
 from app.ai.retrieval import AIRetrievalService, RetrievedChunk
 from app.ai.router import Citation, IntentType
 from app.config import get_settings
+import structlog
+
+logger = structlog.get_logger("cmr.ai.inference")
 
 
 PROMPT_TEMPLATE_VERSION = "v1.0.0"
@@ -123,6 +127,94 @@ class AIInferenceService:
         return citations
 
     @classmethod
+    async def _call_gemini(
+        cls, prompt: str, model: str, api_key: str
+    ) -> Optional[Dict[str, Any]]:
+        """Calls Google Gemini REST API."""
+        import httpx
+
+        effective_model = model if "gemini" in model.lower() else "gemini-3.6-flash"
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{effective_model}:generateContent?key={api_key}"
+        payload = {
+            "contents": [{"parts": [{"text": prompt}]}],
+            "generationConfig": {
+                "temperature": 0.2,
+                "maxOutputTokens": 1024,
+            },
+        }
+        for attempt in range(2):
+            try:
+                async with httpx.AsyncClient(timeout=60.0) as client:
+                    res = await client.post(url, json=payload)
+                    if res.status_code == 200:
+                        data = res.json()
+                        candidates = data.get("candidates", [])
+                        if candidates and "content" in candidates[0]:
+                            parts = candidates[0]["content"].get("parts", [])
+                            text = "".join(part.get("text", "") for part in parts if "text" in part).strip()
+                            if text:
+                                usage = data.get("usageMetadata", {})
+                                return {
+                                    "text": text,
+                                    "model": effective_model,
+                                    "input_tokens": usage.get("promptTokenCount", len(prompt.split()) * 2),
+                                    "output_tokens": usage.get("candidatesTokenCount", len(text.split()) * 2),
+                                    "total_tokens": usage.get("totalTokenCount", 0),
+                                }
+                    elif res.status_code in (429, 503) and attempt == 0:
+                        logger.info("gemini_rate_limit_retry", status_code=res.status_code, attempt=attempt)
+                        await asyncio.sleep(1.5)
+                        continue
+                    else:
+                        logger.warning("gemini_api_error", status_code=res.status_code, body=res.text[:200])
+            except Exception as e:
+                logger.warning("gemini_api_exception", error=repr(e))
+                if attempt == 0:
+                    await asyncio.sleep(1.0)
+                    continue
+        return None
+
+    @classmethod
+    async def _call_openai(
+        cls, prompt: str, model: str, api_key: str
+    ) -> Optional[Dict[str, Any]]:
+        """Calls OpenAI Chat Completions API."""
+        import httpx
+
+        effective_model = model if "gpt" in model.lower() else "gpt-4o-mini"
+        url = "https://api.openai.com/v1/chat/completions"
+        payload = {
+            "model": effective_model,
+            "messages": [
+                {"role": "system", "content": "You are the official CMR Specialist Automation Agent for Nigeria."},
+                {"role": "user", "content": prompt},
+            ],
+            "temperature": 0.2,
+            "max_tokens": 1024,
+        }
+        try:
+            async with httpx.AsyncClient(timeout=25.0) as client:
+                res = await client.post(url, headers={"Authorization": f"Bearer {api_key}"}, json=payload)
+                if res.status_code == 200:
+                    data = res.json()
+                    choice = data.get("choices", [{}])[0]
+                    text = choice.get("message", {}).get("content", "").strip()
+                    usage = data.get("usage", {})
+                    if text:
+                        return {
+                            "text": text,
+                            "model": effective_model,
+                            "input_tokens": usage.get("prompt_tokens", len(prompt.split()) * 2),
+                            "output_tokens": usage.get("completion_tokens", len(text.split()) * 2),
+                            "total_tokens": usage.get("total_tokens", 0),
+                        }
+                else:
+                    logger.warning("openai_api_error", status_code=res.status_code, body=res.text[:200])
+        except Exception as e:
+            logger.warning("openai_api_exception", error=str(e))
+        return None
+
+    @classmethod
     async def generate_grounded_answer(
         cls,
         session: AsyncSession,
@@ -234,33 +326,46 @@ class AIInferenceService:
                 question=question,
             )
 
-            # In mock mode, compose grounded answer strictly from the retrieved chunks
-            # In live LLM mode, can dispatch to OpenAI / Gemini
-            first_chunk = retrieved_chunks[0]
-            summary_points = [
-                sentence.strip()
-                for sentence in first_chunk.content.split(".")
-                if len(sentence.strip()) > 15
-            ]
-            main_point = summary_points[0] if summary_points else first_chunk.content[:120]
+            # Live LLM dispatch (Gemini / OpenAI) with deterministic fallback
+            llm_result = None
+            if settings.ENVIRONMENT != "testing" and settings.LLM_PROVIDER == "gemini" and settings.GEMINI_API_KEY:
+                llm_result = await cls._call_gemini(raw_prompt, model_name, settings.GEMINI_API_KEY)
+            elif settings.ENVIRONMENT != "testing" and settings.LLM_PROVIDER == "openai" and settings.OPENAI_API_KEY:
+                llm_result = await cls._call_openai(raw_prompt, model_name, settings.OPENAI_API_KEY)
 
-            generated_answer = (
-                f"Based on official CMR procedures, {main_point.lower() if not main_point.startswith('1.') else main_point}. "
-                f"[Doc: {first_chunk.document_title}, Chunk: {first_chunk.chunk_id_code}]"
-            )
-            if len(retrieved_chunks) > 1:
-                second_chunk = retrieved_chunks[1]
-                generated_answer += (
-                    f" Additionally, refer to official guidelines: "
-                    f"[Doc: {second_chunk.document_title}, Chunk: {second_chunk.chunk_id_code}]."
+            if llm_result:
+                generated_answer = llm_result["text"]
+                model_name = llm_result["model"]
+                input_tokens = llm_result["input_tokens"]
+                output_tokens = llm_result["output_tokens"]
+                total_tokens = llm_result["total_tokens"]
+                citations = cls.extract_citations_from_text(generated_answer, retrieved_chunks)
+            else:
+                first_chunk = retrieved_chunks[0]
+                summary_points = [
+                    sentence.strip()
+                    for sentence in first_chunk.content.split(".")
+                    if len(sentence.strip()) > 15
+                ]
+                main_point = summary_points[0] if summary_points else first_chunk.content[:120]
+
+                generated_answer = (
+                    f"Based on official CMR procedures, {main_point.lower() if not main_point.startswith('1.') else main_point}. "
+                    f"[Doc: {first_chunk.document_title}, Chunk: {first_chunk.chunk_id_code}]"
                 )
+                if len(retrieved_chunks) > 1:
+                    second_chunk = retrieved_chunks[1]
+                    generated_answer += (
+                        f" Additionally, refer to official guidelines: "
+                        f"[Doc: {second_chunk.document_title}, Chunk: {second_chunk.chunk_id_code}]."
+                    )
 
-            citations = cls.extract_citations_from_text(generated_answer, retrieved_chunks)
+                citations = cls.extract_citations_from_text(generated_answer, retrieved_chunks)
+                input_tokens = len(raw_prompt.split()) * 2
+                output_tokens = len(generated_answer.split()) * 2
+                total_tokens = input_tokens + output_tokens
 
-        # 4. Token & Latency Metrics
-        input_tokens = len(raw_prompt.split()) * 2
-        output_tokens = len(generated_answer.split()) * 2
-        total_tokens = input_tokens + output_tokens
+        # 4. Latency Metrics
         latency_ms = (time.perf_counter() - start_time) * 1000.0
 
         # 5. Persist AIRun Trace

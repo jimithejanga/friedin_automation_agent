@@ -14,6 +14,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.types import JSON
 
 from app.platform.database import GUID, Base
+import app.cases.models  # noqa: F401
 
 
 class AIRun(Base):
